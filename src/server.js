@@ -16,7 +16,7 @@ const FileSync = require('lowdb/adapters/FileSync');
 const db = low(new FileSync(process.env.DATA_PATH, { serialize: JSON.stringify, deserialize: JSON.parse }));
 
 process.title = "zone library";
-mkdir(process.env.MEDIA_PATH).catch(console.log);
+mkdir(process.env.MEDIA_PATH).catch(() => {});
 
 db.defaults({
     entries: [],
