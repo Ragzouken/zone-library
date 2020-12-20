@@ -68,6 +68,8 @@ app.post("/library", async (request, response) => {
         const path = `${process.env.MEDIA_PATH}/${id}${type}`;
 
         await file.mv(path);
+
+        getMediaDurationInSeconds(path).catch(console.log);
         const duration = await getMediaDurationInSeconds(path).catch(() => 0);
         
         const info = {
