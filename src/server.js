@@ -103,7 +103,8 @@ app.post("/library", async (request, response) => {
         const parsed = parse(file.name);
         const id = nanoid();
         const file = request.files.media;
-        const path = `${process.env.MEDIA_PATH}/${id}${parsed.ext}`;
+        const filename = id + parsed.ext
+        const path = `${process.env.MEDIA_PATH}/${filename}`;
 
         await file.mv(path);
         const duration = await getMediaDurationInSeconds(path);
@@ -111,7 +112,7 @@ app.post("/library", async (request, response) => {
         const info = {
             id,
             title: request.body.title,
-            src: path,
+            filename,
             duration,
         }
         
