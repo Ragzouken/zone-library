@@ -1,6 +1,7 @@
 const { nanoid } = require("nanoid");
 const { extname } = require ("path");
-const { mkdir } = require("fs");
+const { mkdir, rename } = require("fs").promises;
+const glob = require("glob");
 
 const express = require("express");
 const fileUpload = require('express-fileupload');
@@ -15,7 +16,7 @@ const FileSync = require('lowdb/adapters/FileSync');
 const db = low(new FileSync(process.env.DATA_PATH, { serialize: JSON.stringify, deserialize: JSON.parse }));
 
 process.title = "zone library";
-mkdir(process.env.MEDIA_PATH, () => {});
+mkdir(process.env.MEDIA_PATH).catch(console.log);
 
 db.defaults({
     entries: [],
@@ -46,6 +47,40 @@ process.on('SIGINT', () => {
 
 app.use(express.static("public"));
 app.use("/media", express.static("media"));
+
+async function addFromLocalFile(file) {
+    const id = nanoid();
+    const type = extname(file);
+    const path = `${process.env.MEDIA_PATH}/${id}${type}`;
+
+    await rename(file, path);
+    const duration = await getMediaDurationInSeconds(path);
+    
+    const info = {
+        id,
+        title: file,
+        src: path,
+        duration,
+    }
+    
+    library.set(id, info);
+    save();
+    return info;
+}
+
+async function addLocalFiles() {
+    return new Promise((resolve, reject) => {
+        glob("dump/**/*.{mp3,mp4}", (error, matches) => {
+            const added = Promise.all(matches.map(addFromLocalFile));
+            resolve(added);
+        });
+    });
+}
+
+app.get("/library-update-local", async (request, response) => {
+    const added = await addLocalFiles();
+    response.status(201).json(added);
+});
 
 app.get("/library", (request, response) => {
     response.json(Array.from(library.values()));
