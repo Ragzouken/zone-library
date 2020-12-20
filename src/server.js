@@ -65,24 +65,28 @@ app.get("/library/:id", (request, response) => {
 });
 
 app.post("/library", async (request, response) => {
-    const id = nanoid();
-    const file = request.files.media;
-    const type = extname(file.name);
-    const path = `${process.env.MEDIA_PATH}/${id}${type}`;
+    if (request.body.password !== process.env.PASSWORD) {
+        response.status(401).json({ title: "Invalid password." });
+    } else {
+        const id = nanoid();
+        const file = request.files.media;
+        const type = extname(file.name);
+        const path = `${process.env.MEDIA_PATH}/${id}${type}`;
 
-    await file.mv(path);
-    const duration = await getMediaDurationInSeconds(path).catch(() => 0);
-    
-    const info = {
-        id,
-        title: request.body.title,
-        src: path,
-        duration,
+        await file.mv(path);
+        const duration = await getMediaDurationInSeconds(path).catch(() => 0);
+        
+        const info = {
+            id,
+            title: request.body.title,
+            src: path,
+            duration,
+        }
+        
+        library.set(id, info);
+        response.json(info);
+        save();
     }
-    
-    library.set(id, info);
-    response.json(info);
-    save();
 });
 
 app.put("/library/:id", (request, response) => {
