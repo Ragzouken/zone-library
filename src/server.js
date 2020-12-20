@@ -19,12 +19,6 @@ db.defaults({
 }).write();
 
 const library = new Map(db.get("entries"));
-library.set("yoda", {
-    id: "yoda",
-    title: "yoda spins",
-    media: "/",
-    duration: "400s",
-});
 
 function save() {
     db.set("entries", Array.from(library)).write();

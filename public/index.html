@@ -1,0 +1,27 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>zone upload 2</title>
+  </head>
+  <body>
+    <div id="upload-panel">
+      <form action="./library" method="POST" enctype="multipart/form-data">
+        <label>
+          <div>title</div>
+          <input type="text" name="title" placeholder="title..." minlength="1" maxlength="64" required>
+        </label>
+        <label>
+          <div>file</div>
+          <input type="file" name="media" accept=".mp4,.mp3" required>
+        </label>
+        <label>
+          <div>upload password</div>
+          <input type="password" name="password">
+        </label>
+        <input id="upload-button" type="submit" value="upload">
+      </form>
+    </div>
+  </body>
+</html>
