@@ -1,5 +1,5 @@
 const { nanoid } = require("nanoid");
-const { extname } = require ("path");
+const { extname, basename } = require ("path");
 const { mkdir, rename } = require("fs").promises;
 const glob = require("glob");
 
@@ -58,7 +58,7 @@ async function addFromLocalFile(file) {
     
     const info = {
         id,
-        title: file,
+        title: basename(file),
         src: path,
         duration,
     }
