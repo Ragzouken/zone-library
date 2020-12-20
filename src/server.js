@@ -101,9 +101,9 @@ app.post("/library", async (request, response) => {
     if (request.body.password !== process.env.PASSWORD) {
         response.status(401).json({ title: "Invalid password." });
     } else {
+        const file = request.files.media;
         const parsed = parse(file.name);
         const id = nanoid();
-        const file = request.files.media;
         const filename = id + parsed.ext
         const path = `${process.env.MEDIA_PATH}/${filename}`;
 
