@@ -70,7 +70,7 @@ async function addFromLocalFile(file) {
 
 async function addLocalFiles() {
     return new Promise((resolve, reject) => {
-        glob("dump/**/*.{mp3,mp4}", (error, matches) => {
+        glob(`${process.env.MEDIA_PATH}/dump/**/*.{mp3,mp4}`, (error, matches) => {
             const added = Promise.all(matches.map(addFromLocalFile));
             resolve(added);
         });
