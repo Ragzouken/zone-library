@@ -1,5 +1,5 @@
 const { nanoid } = require("nanoid");
-const { extname, basename } = require ("path");
+const { extname, basename, parse } = require ("path");
 const { mkdir, rename } = require("fs").promises;
 const glob = require("glob");
 
@@ -49,16 +49,16 @@ app.use(express.static("public"));
 app.use("/media", express.static("media"));
 
 async function addFromLocalFile(file) {
+    const parsed = parse(file);
     const id = nanoid();
-    const type = extname(file);
-    const path = `${process.env.MEDIA_PATH}/${id}${type}`;
+    const path = `${process.env.MEDIA_PATH}/${id}${parsed.ext}`;
 
     await rename(file, path);
     const duration = await getMediaDurationInSeconds(path);
     
     const info = {
         id,
-        title: basename(file),
+        title: parsed.name,
         src: path,
         duration,
     }
@@ -100,10 +100,10 @@ app.post("/library", async (request, response) => {
     if (request.body.password !== process.env.PASSWORD) {
         response.status(401).json({ title: "Invalid password." });
     } else {
+        const parsed = parse(file.name);
         const id = nanoid();
         const file = request.files.media;
-        const type = extname(file.name);
-        const path = `${process.env.MEDIA_PATH}/${id}${type}`;
+        const path = `${process.env.MEDIA_PATH}/${id}${parsed.ext}`;
 
         await file.mv(path);
         const duration = await getMediaDurationInSeconds(path);
