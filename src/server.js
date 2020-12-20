@@ -24,6 +24,10 @@ app.use(fileUpload({
     limits: { fileSize: 16 * 1024 * 1024 },
 }));
 
+process.on('SIGINT', function() {
+    process.exit();
+});
+
 app.use(express.static("public"));
 app.use("/media", express.static("media"));
 
