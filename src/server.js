@@ -51,7 +51,8 @@ app.use("/media", express.static("media"));
 async function addFromLocalFile(file) {
     const parsed = parse(file);
     const id = nanoid();
-    const path = `${process.env.MEDIA_PATH}/${id}${parsed.ext}`;
+    const filename = id + parsed.ext
+    const path = `${process.env.MEDIA_PATH}/${filename}`;
 
     await rename(file, path);
     const duration = await getMediaDurationInSeconds(path);
@@ -59,7 +60,7 @@ async function addFromLocalFile(file) {
     const info = {
         id,
         title: parsed.name,
-        src: path,
+        filename,
         duration,
     }
     
