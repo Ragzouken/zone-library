@@ -58,7 +58,7 @@ async function addFromLocalFile(file) {
     const path = `${process.env.MEDIA_PATH}/${filename}`;
 
     await rename(file, path);
-    const duration = await getMediaDurationInSeconds(path);
+    const duration = await getMediaDurationInSeconds(path) * 1000;
     
     const info = {
         id,
