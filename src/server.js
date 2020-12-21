@@ -138,14 +138,18 @@ app.post("/library", async (request, response) => {
 });
 
 app.put("/library/:id", (request, response) => {
-    const info = library.get(request.params.id);
-
-    if (info) {
-        info.title = request.body.title || info.title;
-        response.json(info);
-        save();
+    if (request.body.password !== process.env.PASSWORD) {
+        response.status(401).json({ title: "Invalid password." });
     } else {
-        response.status(404).json({ title: "Entry does not exist." });
+        const info = library.get(request.params.id);
+
+        if (info) {
+            info.title = request.body.title || info.title;
+            response.json(info);
+            save();
+        } else {
+            response.status(404).json({ title: "Entry does not exist." });
+        }
     }
 });
 
