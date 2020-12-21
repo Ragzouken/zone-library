@@ -94,7 +94,8 @@ app.get("/library", (request, response) => {
     const entries = Array.from(library.values()).map(withSource);
 
     if (request.query.q) {
-        const results = entries.filter((entry) => entry.title.includes(request.query.q));
+        const search = request.query.q.toLowerCase();
+        const results = entries.filter((entry) => entry.title.toLowerCase().includes(search));
         response.json(results);
     } else {
         response.json(entries);
