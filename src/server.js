@@ -81,8 +81,8 @@ async function addLocalFiles() {
     });
 }
 
-function withSrc(info) {
-    return { ...info, src: process.env.MEDIA_PATH_PUBLIC + "/" + info.filename };
+function withSource(info) {
+    return { ...info, source: process.env.MEDIA_PATH_PUBLIC + "/" + info.filename };
 }
 
 app.get("/library-update-local", async (request, response) => {
@@ -91,7 +91,7 @@ app.get("/library-update-local", async (request, response) => {
 });
 
 app.get("/library", (request, response) => {
-    const entries = Array.from(library.values()).map(withSrc);
+    const entries = Array.from(library.values()).map(withSource);
 
     if (request.query.q) {
         const results = entries.filter((entry) => entry.title.includes(request.query.q));
@@ -105,7 +105,7 @@ app.get("/library/:id", (request, response) => {
     const info = library.get(request.params.id);
 
     if (info) {
-        response.json(withSrc(info));
+        response.json(withSource(info));
     } else {
         response.status(404).json({ title: "Entry does not exist." });
     }
@@ -122,7 +122,7 @@ app.post("/library", async (request, response) => {
         const path = `${process.env.MEDIA_PATH}/${filename}`;
 
         await file.mv(path);
-        const duration = await getMediaDurationInSeconds(path);
+        const duration = await getMediaDurationInSeconds(path) * 1000;
         
         const info = {
             id,
