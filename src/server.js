@@ -1,5 +1,5 @@
 const { nanoid } = require("nanoid");
-const { extname, basename, parse } = require ("path");
+const { parse, dirname } = require("path");
 const { mkdir, rename } = require("fs").promises;
 const glob = require("glob");
 
@@ -10,13 +10,16 @@ const ffprobe = require("ffprobe");
 const ffprobeStatic = require("ffprobe-static");
 
 require('dotenv').config();
+require('dotenv').config({ path: ".env.defaults" });
+
+mkdir(process.env.MEDIA_PATH).catch(() => {});
+mkdir(dirname(process.env.DATA_PATH)).catch(() => {});
 
 const low = require('lowdb')
 const FileSync = require('lowdb/adapters/FileSync');
 const db = low(new FileSync(process.env.DATA_PATH, { serialize: JSON.stringify, deserialize: JSON.parse }));
 
 process.title = "zone library";
-mkdir(process.env.MEDIA_PATH).catch(() => {});
 
 db.defaults({
     entries: [],
@@ -124,7 +127,15 @@ app.post("/library", async (request, response) => {
 });
 
 app.put("/library/:id", (request, response) => {
-    
+    const info = library.get(request.params.id);
+
+    if (info) {
+        info.title = request.body.title || info.title;
+        response.json(info);
+        save();
+    } else {
+        response.status(404).json({ title: "Entry does not exist." });
+    }
 });
 
 const listener = app.listen(process.env.PORT, "localhost", () => {
