@@ -75,10 +75,14 @@ async function addFromLocalFile(file) {
 async function addLocalFiles() {
     return new Promise((resolve, reject) => {
         glob(`${process.env.MEDIA_PATH}/dump/**/*.{mp3,mp4}`, (error, matches) => {
-            const added = Promise.all(matches.map(addFromLocalFile));
-            resolve(added);
+            if (error) reject(error);
+            else resolve(Promise.all(matches.map(addFromLocalFile)));
         });
     });
+}
+
+function withSrc(info) {
+    return { ...info, src: process.env.MEDIA_PATH_PUBLIC + "/" + info.filename };
 }
 
 app.get("/library-update-local", async (request, response) => {
@@ -87,14 +91,21 @@ app.get("/library-update-local", async (request, response) => {
 });
 
 app.get("/library", (request, response) => {
-    response.json(Array.from(library.values()));
+    const entries = Array.from(library.values()).map(withSrc);
+
+    if (request.query.q) {
+        const results = entries.filter((entry) => entry.title.includes(request.query.q));
+        response.json(results);
+    } else {
+        response.json(entries);
+    }    
 });
 
 app.get("/library/:id", (request, response) => {
     const info = library.get(request.params.id);
 
     if (info) {
-        response.json(info);
+        response.json(withSrc(info));
     } else {
         response.status(404).json({ title: "Entry does not exist." });
     }
