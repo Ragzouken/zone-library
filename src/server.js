@@ -154,7 +154,7 @@ app.put("/library/:id", (request, response) => {
     }
 });
 
-app.delete("/library/:id", (request, response) => {
+app.delete("/library/:id", async (request, response) => {
     if (request.body.password !== process.env.PASSWORD) {
         response.status(401).json({ title: "Invalid password." });
     } else {
