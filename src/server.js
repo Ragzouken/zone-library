@@ -59,6 +59,14 @@ function checkPassword(request, response, next) {
     }
 }
 
+function checkEntryExists(request, response, next) {
+    if (library.has(request.params.id)) {
+        next();
+    } else {
+        response.status(404).json({ title: "Entry does not exist." });
+    }
+}
+
 async function addFromLocalFile(file) {
     const parsed = parse(file);
     const id = nanoid();
@@ -110,18 +118,12 @@ app.get("/library", (request, response) => {
     }    
 });
 
-app.get("/library/:id", (request, response) => {
+app.get("/library/:id", checkEntryExists, (request, response) => {
     const info = library.get(request.params.id);
-
-    if (info) {
-        response.json(withSource(info));
-    } else {
-        response.status(404).json({ title: "Entry does not exist." });
-    }
+    response.json(withSource(info));
 });
 
-app.use(checkPassword);
-app.post("/library", async (request, response) => {
+app.post("/library", checkPassword, async (request, response) => {
     const file = request.files.media;
     const parsed = parse(file.name);
     const id = nanoid();
@@ -143,29 +145,19 @@ app.post("/library", async (request, response) => {
     save();
 });
 
-app.put("/library/:id", (request, response) => {
+app.put("/library/:id", checkPassword, checkEntryExists, (request, response) => {
     const info = library.get(request.params.id);
-
-    if (info) {
-        info.title = request.body.title || info.title;
-        response.json(info);
-        save();
-    } else {
-        response.status(404).json({ title: "Entry does not exist." });
-    }
+    info.title = request.body.title || info.title;
+    response.json(info);
+    save();
 });
 
-app.delete("/library/:id", async (request, response) => {
+app.delete("/library/:id", checkPassword, checkEntryExists, async (request, response) => {
     const info = library.get(request.params.id);
-
-    if (info) {
-        library.delete(info.id);
-        await unlink(`${process.env.MEDIA_PATH}/${info.filename}`);
-        response.json(info);
-        save();
-    } else {
-        response.status(404).json({ title: "Entry does not exist." });
-    }
+    library.delete(info.id);
+    await unlink(`${process.env.MEDIA_PATH}/${info.filename}`);
+    response.json(info);
+    save();
 });
 
 const listener = app.listen(process.env.PORT, "localhost", () => {
