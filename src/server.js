@@ -36,6 +36,11 @@ async function getMediaDurationInSeconds(file) {
     return info.streams[0].duration;
 }
 
+process.on('SIGINT', () => {
+    save();
+    process.exit();
+});
+
 const app = express();
 app.use(fileUpload({
     abortOnLimit: true,
@@ -43,13 +48,16 @@ app.use(fileUpload({
     limits: { fileSize: 16 * 1024 * 1024 },
 }));
 
-process.on('SIGINT', () => {
-    save();
-    process.exit();
-});
-
 app.use(express.static("public"));
 app.use("/media", express.static("media"));
+
+function checkPassword(request, response, next) {
+    if (request.body && request.body.password !== process.env.PASSWORD) {
+        response.status(401).json({ title: "Invalid password." });
+    } else {
+        next();
+    }
+}
 
 async function addFromLocalFile(file) {
     const parsed = parse(file);
@@ -112,62 +120,51 @@ app.get("/library/:id", (request, response) => {
     }
 });
 
+app.use(checkPassword);
 app.post("/library", async (request, response) => {
-    if (request.body.password !== process.env.PASSWORD) {
-        response.status(401).json({ title: "Invalid password." });
-    } else {
-        const file = request.files.media;
-        const parsed = parse(file.name);
-        const id = nanoid();
-        const filename = id + parsed.ext
-        const path = `${process.env.MEDIA_PATH}/${filename}`;
+    const file = request.files.media;
+    const parsed = parse(file.name);
+    const id = nanoid();
+    const filename = id + parsed.ext
+    const path = `${process.env.MEDIA_PATH}/${filename}`;
 
-        await file.mv(path);
-        const duration = await getMediaDurationInSeconds(path) * 1000;
-        
-        const info = {
-            id,
-            title: request.body.title,
-            filename,
-            duration,
-        }
-        
-        library.set(id, info);
-        response.json(info);
-        save();
+    await file.mv(path);
+    const duration = await getMediaDurationInSeconds(path) * 1000;
+    
+    const info = {
+        id,
+        title: request.body.title,
+        filename,
+        duration,
     }
+    
+    library.set(id, info);
+    response.json(info);
+    save();
 });
 
 app.put("/library/:id", (request, response) => {
-    if (request.body.password !== process.env.PASSWORD) {
-        response.status(401).json({ title: "Invalid password." });
-    } else {
-        const info = library.get(request.params.id);
+    const info = library.get(request.params.id);
 
-        if (info) {
-            info.title = request.body.title || info.title;
-            response.json(info);
-            save();
-        } else {
-            response.status(404).json({ title: "Entry does not exist." });
-        }
+    if (info) {
+        info.title = request.body.title || info.title;
+        response.json(info);
+        save();
+    } else {
+        response.status(404).json({ title: "Entry does not exist." });
     }
 });
 
 app.delete("/library/:id", async (request, response) => {
-    if (request.body.password !== process.env.PASSWORD) {
-        response.status(401).json({ title: "Invalid password." });
-    } else {
-        const info = library.get(request.params.id);
+    const info = library.get(request.params.id);
 
-        if (info) {
-            library.delete(info.id);
-            await unlink(`${process.env.MEDIA_PATH}/${info.filename}`);
-            response.json(info);
-            save();
-        } else {
-            response.status(404).json({ title: "Entry does not exist." });
-        }
+    if (info) {
+        library.delete(info.id);
+        await unlink(`${process.env.MEDIA_PATH}/${info.filename}`);
+        response.json(info);
+        save();
+    } else {
+        response.status(404).json({ title: "Entry does not exist." });
     }
 });
 
