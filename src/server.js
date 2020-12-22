@@ -1,6 +1,6 @@
 const { nanoid } = require("nanoid");
 const { parse, dirname } = require("path");
-const { mkdir, rename } = require("fs").promises;
+const { mkdir, rename, unlink } = require("fs").promises;
 const glob = require("glob");
 
 const express = require("express");
@@ -146,6 +146,23 @@ app.put("/library/:id", (request, response) => {
 
         if (info) {
             info.title = request.body.title || info.title;
+            response.json(info);
+            save();
+        } else {
+            response.status(404).json({ title: "Entry does not exist." });
+        }
+    }
+});
+
+app.delete("/library/:id", (request, response) => {
+    if (request.body.password !== process.env.PASSWORD) {
+        response.status(401).json({ title: "Invalid password." });
+    } else {
+        const info = library.get(request.params.id);
+
+        if (info) {
+            library.delete(info.id);
+            await unlink(`${process.env.MEDIA_PATH}/${info.filename}`);
             response.json(info);
             save();
         } else {
