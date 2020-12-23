@@ -105,6 +105,7 @@ async function addFromLocalFile(file) {
         title: parsed.name,
         filename,
         duration,
+        tags: new Set(),
     }
     
     library.set(id, info);
@@ -174,6 +175,7 @@ app.post("/library", requireAuth, async (request, response) => {
         title: request.body.title,
         filename,
         duration,
+        tags: new Set(),
     }
     
     library.set(id, info);
