@@ -1,13 +1,16 @@
 const { nanoid } = require("nanoid");
-const { parse, dirname } = require("path");
+const { parse, dirname, join } = require("path");
 const { mkdir, rename, unlink } = require("fs").promises;
 const glob = require("glob");
 
 const express = require("express");
 const fileUpload = require('express-fileupload');
+const bodyParser = require('body-parser');
 
 const ffprobe = require("ffprobe");
 const ffprobeStatic = require("ffprobe-static");
+
+const joi = require("joi");
 
 require('dotenv').config();
 require('dotenv').config({ path: ".env.defaults" });
@@ -19,6 +22,9 @@ const low = require('lowdb')
 const FileSync = require('lowdb/adapters/FileSync');
 const db = low(new FileSync(process.env.DATA_PATH, { serialize: JSON.stringify, deserialize: JSON.parse }));
 
+const MEDIA_PATH = process.env.MEDIA_PATH;
+const DUMP_PATH = join(MEDIA_PATH, "dump");
+
 process.title = "zone library";
 
 db.defaults({
@@ -26,6 +32,7 @@ db.defaults({
 }).write();
 
 const library = new Map(db.get("entries"));
+library.forEach((entry) => entry.tags = entry.tags || []);
 
 function save() {
     db.set("entries", Array.from(library)).write();
@@ -47,20 +54,37 @@ app.use(fileUpload({
     uriDecodeFileNames: true,
     limits: { fileSize: 16 * 1024 * 1024 },
 }));
+app.use(bodyParser.json());
 
 app.use(express.static("public"));
 app.use("/media", express.static("media"));
 
-function checkPassword(request, response, next) {
-    if (request.body && request.body.password !== process.env.PASSWORD) {
-        response.status(401).json({ title: "Invalid password." });
-    } else {
+/**
+ * @param {express.Request} request 
+ * @param {express.Response} response 
+ * @param {express.NextFunction} next 
+ */
+function requireAuth(request, response, next) {
+    const auth = request.headers.authorization;
+
+    if (auth && auth.startsWith("Bearer") && auth.endsWith(process.env.PASSWORD)) {
         next();
+    } else if (request.body && request.body.password === process.env.PASSWORD) {
+        next();
+    } else {
+        response.status(401).json({ title: "Invalid password." });
     }
 }
 
-function checkEntryExists(request, response, next) {
-    if (library.has(request.params.id)) {
+/**
+ * @param {express.Request} request 
+ * @param {express.Response} response 
+ * @param {express.NextFunction} next 
+ */
+function requireLibraryEntry(request, response, next) {
+    request.libraryEntry = library.get(request.params.id);
+
+    if (request.libraryEntry) {
         next();
     } else {
         response.status(404).json({ title: "Entry does not exist." });
@@ -71,7 +95,7 @@ async function addFromLocalFile(file) {
     const parsed = parse(file);
     const id = nanoid();
     const filename = id + parsed.ext
-    const path = `${process.env.MEDIA_PATH}/${filename}`;
+    const path = join(MEDIA_PATH, filename);
 
     await rename(file, path);
     const duration = await getMediaDurationInSeconds(path) * 1000;
@@ -90,7 +114,7 @@ async function addFromLocalFile(file) {
 
 async function addLocalFiles() {
     return new Promise((resolve, reject) => {
-        glob(`${process.env.MEDIA_PATH}/dump/**/*.{mp3,mp4}`, (error, matches) => {
+        glob(join(DUMP_PATH, "**/*.{mp3,mp4}"), (error, matches) => {
             if (error) reject(error);
             else resolve(Promise.all(matches.map(addFromLocalFile)));
         });
@@ -101,34 +125,46 @@ function withSource(info) {
     return { ...info, source: process.env.MEDIA_PATH_PUBLIC + "/" + info.filename };
 }
 
+function getLocalPath(info) {
+    return join(MEDIA_PATH, info.filename);
+}
+
+function searchLibrary(options) {
+    let results = Array.from(library.values());
+    
+    if (options.tag) {
+        const tag = options.tag.toLowerCase();
+        results = results.filter((entry) => entry.tags.includes(tag));
+    }
+
+    if (options.q) {
+        const search = options.q.toLowerCase();
+        results = results.filter((entry) => entry.title.toLowerCase().includes(search));
+    }
+
+    return results;
+}
+
 app.get("/library-update-local", async (request, response) => {
     const added = await addLocalFiles();
     response.status(201).json(added);
 });
 
 app.get("/library", (request, response) => {
-    const entries = Array.from(library.values()).map(withSource);
-
-    if (request.query.q) {
-        const search = request.query.q.toLowerCase();
-        const results = entries.filter((entry) => entry.title.toLowerCase().includes(search));
-        response.json(results);
-    } else {
-        response.json(entries);
-    }    
+    let entries = searchLibrary(request.query || {});
+    response.json(entries.map(withSource));
 });
 
-app.get("/library/:id", checkEntryExists, (request, response) => {
-    const info = library.get(request.params.id);
-    response.json(withSource(info));
+app.get("/library/:id", requireLibraryEntry, (request, response) => {
+    response.json(withSource(request.libraryEntry));
 });
 
-app.post("/library", checkPassword, async (request, response) => {
+app.post("/library", requireAuth, async (request, response) => {
     const file = request.files.media;
     const parsed = parse(file.name);
     const id = nanoid();
     const filename = id + parsed.ext
-    const path = `${process.env.MEDIA_PATH}/${filename}`;
+    const path = join(MEDIA_PATH, filename);
 
     await file.mv(path);
     const duration = await getMediaDurationInSeconds(path) * 1000;
@@ -145,18 +181,32 @@ app.post("/library", checkPassword, async (request, response) => {
     save();
 });
 
-app.put("/library/:id", checkPassword, checkEntryExists, (request, response) => {
-    const info = library.get(request.params.id);
-    info.title = request.body.title || info.title;
-    response.json(info);
-    save();
+const tagSchema = joi.string().lowercase().min(1).max(32);
+const patchSchema = joi.object({
+    setTitle: joi.string().min(1).max(128),
+    addTags: joi.array().items(tagSchema).default([]),
+    delTags: joi.array().items(tagSchema).default([]),
 });
 
-app.delete("/library/:id", checkPassword, checkEntryExists, async (request, response) => {
-    const info = library.get(request.params.id);
-    library.delete(info.id);
-    await unlink(`${process.env.MEDIA_PATH}/${info.filename}`);
-    response.json(info);
+app.patch("/library/:id", requireAuth, requireLibraryEntry, (request, response) => {
+    const { value: actions, error } = patchSchema.validate(request.body);
+
+    if (error) {
+        response.status(400).json(error);
+    } else {
+        if (actions.setTitle) request.libraryEntry.title = setTitle;
+        request.libraryEntry.tags.push(...actions.addTags);
+        request.libraryEntry.tags = request.libraryEntry.tags.filter((tag) => !delTags.includes(tag));
+
+        response.json(request.libraryEntry);
+        save();
+    }
+});
+
+app.delete("/library/:id", requireAuth, requireLibraryEntry, async (request, response) => {
+    library.delete(request.libraryEntry.id);
+    await unlink(getLocalPath(request.libraryEntry));
+    response.json(request.libraryEntry);
     save();
 });
 
