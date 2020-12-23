@@ -1,0 +1,49 @@
+html {
+    width: 40em;
+    margin: auto;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+#library-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.library-row {
+    width: 100%;
+    padding: .5em;
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+
+    font-family: monospace;
+    font-size: 1.2em;
+}
+
+.row-title {
+    flex: 1;
+}
+
+.row-duration {
+    text-align: right;
+    font-family: monospace;
+    flex: 0;
+}
+
+.library-row:nth-child(2n+0) {
+    background-color: whitesmoke;
+}
+
+.library-row:nth-child(2n+1) {
+    background-color: lightgray;
+}
+
+.library-row:hover {
+    background-color: cornflowerblue;
+}
