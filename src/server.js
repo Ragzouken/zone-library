@@ -32,7 +32,7 @@ db.defaults({
 }).write();
 
 const library = new Map(db.get("entries"));
-library.forEach((entry) => entry.tags = new Set(entry.tags || []));
+library.forEach((entry) => entry.tags = []);
 
 function save() {
     db.set("entries", Array.from(library)).write();
@@ -197,8 +197,11 @@ app.patch("/library/:id", requireAuth, requireLibraryEntry, (request, response) 
         response.status(400).json(error);
     } else {
         if (actions.setTitle) request.libraryEntry.title = actions.setTitle;
-        actions.addTags.forEach((tag) => request.libraryEntry.tags.add(tag));
-        request.libraryEntry.tags = request.libraryEntry.tags.filter((tag) => !actions.delTags.includes(tag));
+
+        const tags = new Set(request.libraryEntry.tags);
+        actions.addTags.forEach((tag) => tags.add(tag));
+        actions.delTags.forEach((tag) => tags.delete(tag));
+        request.libraryEntry.tags = Array.from(tags);
 
         response.json(request.libraryEntry);
         save();
