@@ -196,7 +196,7 @@ app.patch("/library/:id", requireAuth, requireLibraryEntry, (request, response) 
     } else {
         if (actions.setTitle) request.libraryEntry.title = actions.setTitle;
         request.libraryEntry.tags.push(...actions.addTags);
-        request.libraryEntry.tags = request.libraryEntry.tags.filter((tag) => !delTags.includes(tag));
+        request.libraryEntry.tags = request.libraryEntry.tags.filter((tag) => !actions.delTags.includes(tag));
 
         response.json(request.libraryEntry);
         save();
