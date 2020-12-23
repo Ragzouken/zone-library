@@ -32,7 +32,7 @@ db.defaults({
 }).write();
 
 const library = new Map(db.get("entries"));
-library.forEach((entry) => entry.tags = entry.tags || []);
+library.forEach((entry) => entry.tags = new Set(entry.tags || []));
 
 function save() {
     db.set("entries", Array.from(library)).write();
