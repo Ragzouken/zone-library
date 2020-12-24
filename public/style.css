@@ -1,18 +1,59 @@
+
+/* prevent weird highlights https://stackoverflow.com/questions/21003535/ */
+.no-select {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* hidden elements should be hidden regardless of their display style */
+[hidden] { display: none !important; }
+
+/* default to width/height including padding and border */
+* { box-sizing: border-box; }
+
+/* make buttons inherit font */ 
+button { font-family: inherit; font-size: inherit; }
+
+/* clickable things should use this cursor imo */
+button, a, summary { cursor: pointer; }
+/* but disabled buttons aren't clickable */
+button[disabled] { cursor: not-allowed; }
+
+/* crisp pixelart */
+canvas, img {
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-crisp-edges;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}
+
+html, body {
+    width: 100vw; height: 100vh;
+    margin: auto; padding: 0;
+    max-width: 60em;
+    /*max-height: 30em;*/
+}
+
 html {
-    width: 40em;
-    margin: auto;
+    max-height: unset;
 }
 
 body {
     display: flex;
-    flex-direction: column;
-    gap: 1em;
+    flex-direction: row;
 }
 
 #library-container {
     width: 100%;
     display: flex;
     flex-direction: column;
+    align-items: flex-start;
+    overflow: auto;
 }
 
 .library-row {
@@ -20,7 +61,6 @@ body {
     padding: .5em;
     display: flex;
     flex-direction: row;
-    flex: 1;
 
     font-family: monospace;
     font-size: 1.2em;
@@ -46,4 +86,13 @@ body {
 
 .library-row:hover {
     background-color: cornflowerblue;
+}
+
+#sidebar {
+    flex-shrink: 0;
+    flex-basis: 25em;
+}
+
+#selected-preview {
+    max-width: 100%;
 }

@@ -7,26 +7,35 @@
     <script src="script.js"></script>
     <link rel="stylesheet" href="style.css">
   </head>
-  <body>
-    <div id="upload-panel">
-      <form action="/library" method="POST" enctype="multipart/form-data">
-        <label>
-          <div>title</div>
-          <input type="text" name="title" placeholder="title..." minlength="1" maxlength="64" required>
-        </label>
-        <label>
-          <div>file</div>
-          <input type="file" name="media" accept=".mp4,.mp3" required>
-        </label>
-        <label>
-          <div>upload password</div>
-          <input type="password" name="password">
-        </label>
-        <input id="upload-button" type="submit" value="upload">
-      </form>
-    </div>
-    <div>
-      <button onclick="refresh()">refresh</button>
+  <body onload="start()">
+    <div id="sidebar">
+      <fieldset>
+        <legend>authorization</legend>
+        🔑
+        <input type="password" name="password" id="password">
+      </fieldset>
+      <fieldset>
+        <legend>upload</legend>
+        <input id="upload-title" type="text" placeholder="title..." minlength="1" maxlength="64" required>
+        <input id="upload-media" type="file" accept=".mp4,.mp3" required>
+        <button id="upload-button">upload</button>
+      </fieldset>
+      <fieldset id="selected" hidden>
+        <legend>edit selected</legend>
+        <video controls id="selected-preview"></video>
+        <div>
+          <input type="text" id="selected-title" placeholder="title..." minlength="1" maxlength="128" required>
+          <button id="selected-retitle">retitle</button>
+        </div>
+        <div>
+          <input id="selected-tagname" type="text" minlength="1" maxlength="64" required>
+          <button id="selected-tag">tag</button>
+          <button id="selected-untag">untag</button>
+        </div>
+        <div id="selected-tags">
+          tag, tagged, tags
+        </div>
+      </fieldset>
     </div>
     <div id="library-container">
 
