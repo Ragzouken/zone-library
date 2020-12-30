@@ -140,16 +140,25 @@ async function start() {
         }
     });
 
+    const uploadProgress = document.getElementById("upload-progress");
     document.getElementById("upload-button").addEventListener("click", async () => {
-        const title = document.getElementById("upload-title").value;
-        const media = document.getElementById("upload-media").files[0];
-        const result = await uploadMedia(authInput.value, media, title);
+        try {
+            const title = document.getElementById("upload-title").value;
+            const media = document.getElementById("upload-media").files[0];
 
-        const entries = await refresh();
+            uploadProgress.innerHTML = "uploading...";
+            const result = await uploadMedia(authInput.value, media, title);
+            const entries = await refresh();
 
-        if (result.id) {
-            const selected = entries.find((entry) => entry.id === result.id);
-            select(selected);
+            if (result.id) {
+                uploadProgress.innerHTML = "done!";
+                const selected = entries.find((entry) => entry.id === result.id);
+                select(selected);
+            } else {
+                uploadProgress.innerHTML = result.title;
+            }
+        } catch (e) {
+            uploadProgress.innerHTML = e.toString();
         }
     });
 
