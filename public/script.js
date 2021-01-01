@@ -54,6 +54,20 @@ async function uploadMedia(auth, media, title) {
     return fetch(url, init).then((response) => response.json());
 }
 
+async function uploadSubtitle(auth, id, subtitles) {
+    const url = new URL(`/library/${id}/subtitles`, location.origin);
+    const body = new FormData();
+    body.set("subtitles", subtitles);
+    const init = {
+        method: "PUT",
+        headers: { 
+            "Authorization": "Bearer " + auth,
+        },
+        body,
+    };
+    return fetch(url, init).then((response) => response.json());
+}
+
 async function refresh() {
     const entries = await searchLibrary();
     const titles = entries.map((entry) => entry.title);
@@ -162,6 +176,17 @@ async function start() {
         }
     });
 
+    document.getElementById("subtitle-upload").addEventListener("click", async () => {
+        const subtitle = document.getElementById("subtitle-file").files[0];
+        const result = await uploadSubtitle(authInput.value, selectedEntry.id, subtitle);
+        const entries = await refresh();
+
+        if (result.id) {
+            const selected = entries.find((entry) => entry.id === result.id);
+            select(selected);
+        }
+    });
+
     refresh();
 }
 
@@ -177,4 +202,14 @@ function select(entry) {
     previewVideo.src = new URL(entry.source, location.origin);
     titleInput.value = entry.title;
     tagsContainer.innerHTML = entry.tags.join(", ");
+
+    previewVideo.innerHTML = "";
+    if (entry.subtitle) {
+        const subtrack = document.createElement('track');
+        subtrack.kind = 'subtitles';
+        subtrack.label = 'english';
+        subtrack.src = entry.subtitle;
+        previewVideo.appendChild(subtrack);
+        previewVideo.textTracks[0].mode = 'showing';
+    }
 }

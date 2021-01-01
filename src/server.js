@@ -122,7 +122,10 @@ async function addLocalFiles() {
 }
 
 function withSource(info) {
-    return { ...info, source: process.env.MEDIA_PATH_PUBLIC + "/" + info.filename };
+    const source = process.env.MEDIA_PATH_PUBLIC + "/" + info.filename;
+    const subtitle = info.subtitle && process.env.MEDIA_PATH_PUBLIC + "/" + info.subtitle;
+
+    return { ...info, source, subtitle };
 }
 
 function getLocalPath(info) {
@@ -179,6 +182,19 @@ app.post("/library", requireAuth, async (request, response) => {
     
     library.set(id, info);
     response.json(info);
+    save();
+});
+
+app.put("/library/:id/subtitles", requireAuth, requireLibraryEntry, async (request, response) => {
+    const file = request.files.subtitles;
+    const id = request.params.id;
+    
+    const filename = id + ".vtt";
+    const path = join(MEDIA_PATH, filename);
+    await file.mv(path);
+
+    request.libraryEntry.subtitle = filename;
+    response.json(request.libraryEntry);
     save();
 });
 
