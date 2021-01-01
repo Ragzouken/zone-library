@@ -208,7 +208,7 @@ function select(entry) {
         const subtrack = document.createElement('track');
         subtrack.kind = 'subtitles';
         subtrack.label = 'english';
-        subtrack.src = entry.subtitle;
+        subtrack.src = new URL(entry.subtitle, location.origin);
         previewVideo.appendChild(subtrack);
         previewVideo.textTracks[0].mode = 'showing';
     }
