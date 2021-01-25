@@ -240,14 +240,17 @@ app.post("/library-get-youtube", requireAuth, async (request, response) => {
     const video = youtubedl(youtubeUrl, ['--format=18'], { cwd: __dirname });
     const path = `${YOUTUBE_PATH}/${youtubeId}.mp4`;
 
+    let title = youtubeId;
+    video.on('info', (info) => title = info.title);
+
     video.on('error', (info) => {
         console.log("YOUTUBE ERROR", youtubeId);
         response.status(503).json(info);
     });
 
     video.on('end', async () => {
-        console.log("youtube success", youtubeId);
         const entry = await addFromLocalFile(path);
+        entry.title = title;
         response.json(entry);
     });
 
