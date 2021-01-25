@@ -1,6 +1,7 @@
 const { nanoid } = require("nanoid");
 const { parse, dirname, join } = require("path");
 const { mkdir, rename, unlink } = require("fs").promises;
+const { createWriteStream } = require('fs');
 const glob = require("glob");
 
 const express = require("express");
@@ -9,6 +10,7 @@ const bodyParser = require('body-parser');
 
 const ffprobe = require("ffprobe");
 const ffprobeStatic = require("ffprobe-static");
+const youtubedl = require('youtube-dl');
 
 const joi = require("joi");
 
@@ -24,6 +26,7 @@ const db = low(new FileSync(process.env.DATA_PATH, { serialize: JSON.stringify, 
 
 const MEDIA_PATH = process.env.MEDIA_PATH;
 const DUMP_PATH = join(MEDIA_PATH, "dump");
+const YOUTUBE_PATH = join(MEDIA_PATH, "youtube");
 
 process.title = "zone library";
 
@@ -228,6 +231,27 @@ app.delete("/library/:id", requireAuth, requireLibraryEntry, async (request, res
     await unlink(getLocalPath(request.libraryEntry));
     response.json(request.libraryEntry);
     save();
+});
+
+
+app.post("/library-get-youtube", requireAuth, async (request, response) => {
+    const youtubeId = request.body.youtubeId;
+    const youtubeUrl = `http://www.youtube.com/watch?v=${youtubeId}`;
+    const video = youtubedl(youtubeUrl, ['--format=18'], { cwd: __dirname });
+    const path = `${YOUTUBE_PATH}/${youtubeId}.mp4`;
+
+    video.on('error', (info) => {
+        console.log("YOUTUBE ERROR", youtubeId);
+        response.status(503).json(info);
+    });
+
+    video.on('end', async () => {
+        console.log("youtube success", youtubeId);
+        const entry = await addFromLocalFile(path);
+        response.json(entry);
+    });
+
+    video.pipe(createWriteStream(path));
 });
 
 const listener = app.listen(process.env.PORT, "localhost", () => {

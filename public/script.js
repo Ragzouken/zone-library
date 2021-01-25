@@ -68,6 +68,20 @@ async function uploadSubtitle(auth, id, subtitles) {
     return fetch(url, init).then((response) => response.json());
 }
 
+async function downloadYoutube(auth, youtubeId) {
+    const url = new URL(`/library-get-youtube`, location.origin);
+    const body = new FormData();
+    body.set("youtubeId", youtubeId);
+    const init = {
+        method: "POST",
+        headers: { 
+            "Authorization": "Bearer " + auth,
+        },
+        body,
+    };
+    return fetch(url, init).then((response) => response.json());
+}
+
 async function refresh() {
     const entries = await searchLibrary();
     const titles = entries.map((entry) => entry.title);
@@ -185,6 +199,15 @@ async function start() {
             const selected = entries.find((entry) => entry.id === result.id);
             select(selected);
         }
+    });
+
+    document.getElementById("youtube-button").addEventListener("click", async () => {
+        const url = document.getElementById("youtube-url").value;
+        const youtubeId = new URL(url).searchParams.get("v");
+        console.log(youtubeId);
+
+        const result = await downloadYoutube(authInput.value, youtubeId);
+        const entries = await refresh();
     });
 
     refresh();
