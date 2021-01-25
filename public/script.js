@@ -82,6 +82,20 @@ async function downloadYoutube(auth, youtubeId) {
     return fetch(url, init).then((response) => response.json());
 }
 
+async function downloadTweet(auth, tweetURL) {
+    const url = new URL(`/library-get-tweet`, location.origin);
+    const body = new FormData();
+    body.set("url", tweetURL);
+    const init = {
+        method: "POST",
+        headers: { 
+            "Authorization": "Bearer " + auth,
+        },
+        body,
+    };
+    return fetch(url, init).then((response) => response.json());
+}
+
 async function refresh() {
     const entries = await searchLibrary();
     const titles = entries.map((entry) => entry.title);
@@ -207,6 +221,12 @@ async function start() {
         console.log(youtubeId);
 
         const result = await downloadYoutube(authInput.value, youtubeId);
+        const entries = await refresh();
+    });
+
+    document.getElementById("tweet-button").addEventListener("click", async () => {
+        const url = document.getElementById("tweet-url").value;
+        const result = await downloadTweet(authInput.value, url);
         const entries = await refresh();
     });
 

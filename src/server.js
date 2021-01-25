@@ -257,6 +257,25 @@ app.post("/library-get-youtube", requireAuth, async (request, response) => {
     video.pipe(createWriteStream(path));
 });
 
+app.post("/library-get-tweet", requireAuth, async (request, response) => {
+    const url = request.body.url;
+    const video = youtubedl(url, [], { cwd: __dirname });
+    const path = `${YOUTUBE_PATH}/${nanoid()}.mp4`;
+    console.log(path);
+
+    video.on('error', (info) => {
+        console.log("PAGE ERROR", youtubeId);
+        response.status(503).json(info);
+    });
+
+    video.on('end', async () => {
+        const entry = await addFromLocalFile(path);
+        response.json(entry);
+    });
+
+    video.pipe(createWriteStream(path));
+});
+
 const listener = app.listen(process.env.PORT, "localhost", () => {
     console.log("zone library serving on " + listener.address().port);
 });
