@@ -216,7 +216,9 @@ async function start() {
     });
 
     document.getElementById("youtube-button").addEventListener("click", async () => {
-        const url = document.getElementById("youtube-url").value;
+        const input = document.getElementById("youtube-url");
+        const url = input.value;
+        input.value = "";
         const youtubeId = new URL(url).searchParams.get("v");
         console.log(youtubeId);
 
@@ -225,7 +227,9 @@ async function start() {
     });
 
     document.getElementById("tweet-button").addEventListener("click", async () => {
-        const url = document.getElementById("tweet-url").value;
+        const input = document.getElementById("tweet-url");
+        const url = input.value;
+        input.value = "";
         const result = await downloadTweet(authInput.value, url);
         const entries = await refresh();
     });
