@@ -237,7 +237,7 @@ app.delete("/library/:id", requireAuth, requireLibraryEntry, async (request, res
 app.post("/library-get-youtube", requireAuth, async (request, response) => {
     const youtubeId = request.body.youtubeId;
     const youtubeUrl = `http://www.youtube.com/watch?v=${youtubeId}`;
-    const video = youtubedl(youtubeUrl, ['--format=18'], { cwd: __dirname });
+    const video = youtubedl(youtubeUrl, ['--format=18', '--force-ipv4'], { cwd: __dirname });
     const path = `${YOUTUBE_PATH}/${youtubeId}.mp4`;
 
     let title = youtubeId;
