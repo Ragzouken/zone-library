@@ -156,6 +156,7 @@ app.get("/library-update-local", async (request, response) => {
     response.status(201).json(added);
 });
 
+// general libraries API
 app.get("/library", (request, response) => {
     let entries = searchLibrary(request.query || {});
     response.json(entries.map(withSource));
@@ -164,6 +165,15 @@ app.get("/library", (request, response) => {
 app.get("/library/:id", requireLibraryEntry, (request, response) => {
     response.json(withSource(request.libraryEntry));
 });
+
+app.get("/library/:id/request", requireLibraryEntry, (request, response) => {
+    response.json({ status: "available" });
+});
+
+app.post("/library/:id/request", requireLibraryEntry, (request, response) => {
+    response.status(202).send();
+});
+//
 
 app.post("/library", requireAuth, async (request, response) => {
     const file = request.files.media;
