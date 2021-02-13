@@ -166,7 +166,7 @@ app.get("/library/:id", requireLibraryEntry, (request, response) => {
     response.json(withSource(request.libraryEntry));
 });
 
-app.get("/library/:id/request", requireLibraryEntry, (request, response) => {
+app.get("/library/:id/status", requireLibraryEntry, (request, response) => {
     response.send("available");
 });
 
