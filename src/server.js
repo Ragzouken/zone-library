@@ -124,11 +124,11 @@ async function addLocalFiles() {
     });
 }
 
-function withSource(info) {
-    const source = process.env.MEDIA_PATH_PUBLIC + "/" + info.filename;
+function withSrc(info) {
+    const src = process.env.MEDIA_PATH_PUBLIC + "/" + info.filename;
     const subtitle = info.subtitle && process.env.MEDIA_PATH_PUBLIC + "/" + info.subtitle;
 
-    return { ...info, source, subtitle };
+    return { ...info, src, subtitle };
 }
 
 function getLocalPath(info) {
@@ -159,11 +159,11 @@ app.get("/library-update-local", async (request, response) => {
 // general libraries API
 app.get("/library", (request, response) => {
     let entries = searchLibrary(request.query || {});
-    response.json(entries.map(withSource));
+    response.json(entries.map(withSrc));
 });
 
 app.get("/library/:id", requireLibraryEntry, (request, response) => {
-    response.json(withSource(request.libraryEntry));
+    response.json(withSrc(request.libraryEntry));
 });
 
 app.get("/library/:id/status", requireLibraryEntry, (request, response) => {
