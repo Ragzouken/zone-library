@@ -95,22 +95,22 @@ function requireLibraryEntry(request, response, next) {
 
 async function addFromLocalFile(file) {
     const parsed = parse(file);
-    const id = nanoid();
-    const filename = id + parsed.ext
+    const mediaId = nanoid();
+    const filename = mediaId + parsed.ext
     const path = join(MEDIA_PATH, filename);
 
     await rename(file, path);
     const duration = await getMediaDurationInSeconds(path) * 1000;
     
     const info = {
-        id,
+        mediaId,
         title: parsed.name,
         filename,
         duration,
         tags: [],
     }
     
-    library.set(id, info);
+    library.set(mediaId, info);
     save();
     return info;
 }
@@ -178,31 +178,31 @@ app.post("/library/:id/request", requireLibraryEntry, (request, response) => {
 app.post("/library", requireAuth, async (request, response) => {
     const file = request.files.media;
     const parsed = parse(file.name);
-    const id = nanoid();
-    const filename = id + parsed.ext
+    const mediaId = nanoid();
+    const filename = mediaId + parsed.ext
     const path = join(MEDIA_PATH, filename);
 
     await file.mv(path);
     const duration = await getMediaDurationInSeconds(path) * 1000;
     
     const info = {
-        id,
+        mediaId,
         title: request.body.title,
         filename,
         duration,
         tags: [],
     }
     
-    library.set(id, info);
+    library.set(mediaId, info);
     response.json(info);
     save();
 });
 
 app.put("/library/:id/subtitles", requireAuth, requireLibraryEntry, async (request, response) => {
     const file = request.files.subtitles;
-    const id = request.params.id;
+    const mediaId = request.params.id;
     
-    const filename = id + ".vtt";
+    const filename = mediaId + ".vtt";
     const path = join(MEDIA_PATH, filename);
     await file.mv(path);
 
@@ -237,7 +237,7 @@ app.patch("/library/:id", requireAuth, requireLibraryEntry, (request, response) 
 });
 
 app.delete("/library/:id", requireAuth, requireLibraryEntry, async (request, response) => {
-    library.delete(request.libraryEntry.id);
+    library.delete(request.libraryEntry.mediaId);
     await unlink(getLocalPath(request.libraryEntry));
     response.json(request.libraryEntry);
     save();
