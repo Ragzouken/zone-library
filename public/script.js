@@ -150,7 +150,7 @@ async function start() {
 
         const entries = await refresh();
 
-        if (result.id) {
+        if (result.mediaId) {
             const selected = entries.find((entry) => entry.mediaId === selectedEntry.mediaId);
             select(selected);
         }
@@ -162,7 +162,7 @@ async function start() {
 
         const entries = await refresh();
 
-        if (result.id) {
+        if (result.mediaId) {
             const selected = entries.find((entry) => entry.mediaId === selectedEntry.mediaId);
             select(selected);
             document.getElementById("selected-tagname").value = "";
@@ -175,7 +175,7 @@ async function start() {
 
         const entries = await refresh();
 
-        if (result.id) {
+        if (result.mediaId) {
             const selected = entries.find((entry) => entry.mediaId === selectedEntry.mediaId);
             select(selected);
             document.getElementById("selected-tagname").value = "";
@@ -192,9 +192,9 @@ async function start() {
             const result = await uploadMedia(authInput.value, media, title);
             const entries = await refresh();
 
-            if (result.id) {
+            if (result.mediaId) {
                 uploadProgress.innerHTML = "done!";
-                const selected = entries.find((entry) => entry.id === result.id);
+                const selected = entries.find((entry) => entry.mediaId === result.mediaId);
                 select(selected);
             } else {
                 uploadProgress.innerHTML = result.title;
@@ -209,8 +209,8 @@ async function start() {
         const result = await uploadSubtitle(authInput.value, selectedEntry.mediaId, subtitle);
         const entries = await refresh();
 
-        if (result.id) {
-            const selected = entries.find((entry) => entry.id === result.id);
+        if (result.mediaId) {
+            const selected = entries.find((entry) => entry.mediaId === result.mediaId);
             select(selected);
         }
     });
