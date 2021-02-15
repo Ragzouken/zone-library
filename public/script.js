@@ -146,24 +146,24 @@ async function start() {
 
     document.getElementById("selected-retitle").addEventListener("click", async () => {
         const title = document.getElementById("selected-title").value;
-        const result = await retitleLibraryEntry(selectedEntry.id, authInput.value, title);
+        const result = await retitleLibraryEntry(selectedEntry.mediaId, authInput.value, title);
 
         const entries = await refresh();
 
         if (result.id) {
-            const selected = entries.find((entry) => entry.id === selectedEntry.id);
+            const selected = entries.find((entry) => entry.mediaId === selectedEntry.mediaId);
             select(selected);
         }
     });
 
     document.getElementById("selected-tag").addEventListener("click", async () => {
         const tagname = document.getElementById("selected-tagname").value;
-        const result = await tagLibraryEntry(selectedEntry.id, authInput.value, tagname);
+        const result = await tagLibraryEntry(selectedEntry.mediaId, authInput.value, tagname);
 
         const entries = await refresh();
 
         if (result.id) {
-            const selected = entries.find((entry) => entry.id === selectedEntry.id);
+            const selected = entries.find((entry) => entry.mediaId === selectedEntry.mediaId);
             select(selected);
             document.getElementById("selected-tagname").value = "";
         }
@@ -171,12 +171,12 @@ async function start() {
 
     document.getElementById("selected-untag").addEventListener("click", async () => {
         const tagname = document.getElementById("selected-tagname").value;
-        const result = await untagLibraryEntry(selectedEntry.id, authInput.value, tagname);
+        const result = await untagLibraryEntry(selectedEntry.mediaId, authInput.value, tagname);
 
         const entries = await refresh();
 
         if (result.id) {
-            const selected = entries.find((entry) => entry.id === selectedEntry.id);
+            const selected = entries.find((entry) => entry.mediaId === selectedEntry.mediaId);
             select(selected);
             document.getElementById("selected-tagname").value = "";
         }
@@ -206,7 +206,7 @@ async function start() {
 
     document.getElementById("subtitle-upload").addEventListener("click", async () => {
         const subtitle = document.getElementById("subtitle-file").files[0];
-        const result = await uploadSubtitle(authInput.value, selectedEntry.id, subtitle);
+        const result = await uploadSubtitle(authInput.value, selectedEntry.mediaId, subtitle);
         const entries = await refresh();
 
         if (result.id) {
@@ -246,7 +246,7 @@ function select(entry) {
 
     selectedEntry = entry;
     selectedContainer.hidden = false;
-    previewVideo.src = new URL(entry.source, location.origin);
+    previewVideo.src = new URL(entry.src, location.origin);
     titleInput.value = entry.title;
     tagsContainer.innerHTML = entry.tags.join(", ");
 
