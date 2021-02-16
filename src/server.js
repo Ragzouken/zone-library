@@ -4,7 +4,7 @@ const { mkdir, rename, unlink } = require("fs").promises;
 const { createWriteStream } = require('fs');
 const glob = require("glob");
 
-const express, { json } = require("express");
+const express = require("express");
 const fileUpload = require('express-fileupload');
 
 const ffprobe = require("ffprobe");
@@ -55,7 +55,7 @@ app.use(fileUpload({
     uriDecodeFileNames: true,
     limits: { fileSize: 16 * 1024 * 1024 },
 }));
-app.use(json());
+app.use(express.json());
 
 app.use(express.static("public"));
 app.use("/media", express.static("media"));
