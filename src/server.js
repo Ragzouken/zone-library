@@ -4,9 +4,8 @@ const { mkdir, rename, unlink } = require("fs").promises;
 const { createWriteStream } = require('fs');
 const glob = require("glob");
 
-const express = require("express");
+const express, { json } = require("express");
 const fileUpload = require('express-fileupload');
-const bodyParser = require('body-parser');
 
 const ffprobe = require("ffprobe");
 const ffprobeStatic = require("ffprobe-static");
@@ -56,7 +55,7 @@ app.use(fileUpload({
     uriDecodeFileNames: true,
     limits: { fileSize: 16 * 1024 * 1024 },
 }));
-app.use(bodyParser.json());
+app.use(json());
 
 app.use(express.static("public"));
 app.use("/media", express.static("media"));
@@ -286,6 +285,6 @@ app.post("/library-get-tweet", requireAuth, async (request, response) => {
     video.pipe(createWriteStream(path));
 });
 
-const listener = app.listen(process.env.PORT, "localhost", () => {
+const listener = app.listen(process.env.PORT, process.env.HOST, () => {
     console.log("zone library serving on " + listener.address().port);
 });
