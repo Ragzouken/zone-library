@@ -77,20 +77,15 @@ function requireAuth(request, response, next) {
     }
 }
 
-/**
- * @param {express.Request} request 
- * @param {express.Response} response 
- * @param {express.NextFunction} next 
- */
-function requireLibraryEntry(request, response, next) {
-    request.libraryEntry = library.get(request.params.id);
+app.param("media", (request, response, next, mediaId) => {
+    request.libraryEntry = library.get(mediaId);
 
     if (request.libraryEntry) {
         next();
     } else {
         response.status(404).json({ title: "Entry does not exist." });
     }
-}
+});
 
 async function addFromLocalFile(file) {
     const parsed = parse(file);
@@ -161,15 +156,15 @@ app.get("/library", (request, response) => {
     response.json(entries.map(withSrc));
 });
 
-app.get("/library/:id", requireLibraryEntry, (request, response) => {
+app.get("/library/:media", (request, response) => {
     response.json(withSrc(request.libraryEntry));
 });
 
-app.get("/library/:id/status", requireLibraryEntry, (request, response) => {
+app.get("/library/:media/status", (request, response) => {
     response.json("available");
 });
 
-app.post("/library/:id/request", requireLibraryEntry, (request, response) => {
+app.post("/library/:media/request", (request, response) => {
     response.status(202).send();
 });
 //
@@ -197,7 +192,7 @@ app.post("/library", requireAuth, async (request, response) => {
     save();
 });
 
-app.put("/library/:id/subtitles", requireAuth, requireLibraryEntry, async (request, response) => {
+app.put("/library/:media/subtitles", requireAuth, async (request, response) => {
     const file = request.files.subtitles;
     const mediaId = request.params.id;
     
@@ -217,7 +212,7 @@ const patchSchema = joi.object({
     delTags: joi.array().items(tagSchema).default([]),
 });
 
-app.patch("/library/:id", requireAuth, requireLibraryEntry, (request, response) => {
+app.patch("/library/:media", requireAuth, (request, response) => {
     const { value: actions, error } = patchSchema.validate(request.body);
 
     if (error) {
@@ -235,7 +230,7 @@ app.patch("/library/:id", requireAuth, requireLibraryEntry, (request, response) 
     }
 });
 
-app.delete("/library/:id", requireAuth, requireLibraryEntry, async (request, response) => {
+app.delete("/library/:media", requireAuth, async (request, response) => {
     library.delete(request.libraryEntry.mediaId);
     await unlink(getLocalPath(request.libraryEntry));
     response.json(request.libraryEntry);
