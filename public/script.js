@@ -224,6 +224,11 @@ async function start() {
 
         const result = await downloadYoutube(authInput.value, youtubeId);
         const entries = await refresh();
+
+        if (result.mediaId) {
+            const selected = entries.find((entry) => entry.mediaId === result.mediaId);
+            select(selected);
+        }
     });
 
     document.getElementById("tweet-button").addEventListener("click", async () => {
@@ -232,6 +237,11 @@ async function start() {
         input.value = "";
         const result = await downloadTweet(authInput.value, url);
         const entries = await refresh();
+
+        if (result.mediaId) {
+            const selected = entries.find((entry) => entry.mediaId === result.mediaId);
+            select(selected);
+        }
     });
 
     refresh();
