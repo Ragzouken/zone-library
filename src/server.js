@@ -194,9 +194,8 @@ app.post("/library", requireAuth, async (request, response) => {
 
 app.put("/library/:media/subtitles", requireAuth, async (request, response) => {
     const file = request.files.subtitles;
-    const mediaId = request.params.id;
     
-    const filename = mediaId + ".vtt";
+    const filename = request.libraryEntry.mediaId + ".vtt";
     const path = join(MEDIA_PATH, filename);
     await file.mv(path);
 
