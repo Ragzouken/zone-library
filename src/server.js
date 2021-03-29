@@ -53,7 +53,7 @@ const app = express();
 app.use(fileUpload({
     abortOnLimit: true,
     uriDecodeFileNames: true,
-    limits: { fileSize: env.UPLOAD_LIMIT_MB * 1024 * 1024 },
+    limits: { fileSize: process.env.UPLOAD_LIMIT_MB * 1024 * 1024 },
 }));
 app.use(express.json());
 
