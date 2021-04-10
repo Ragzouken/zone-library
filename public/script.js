@@ -102,7 +102,6 @@ async function downloadTweet(auth, tweetURL) {
 
 async function refresh() {
     const entries = await searchLibrary();
-    const titles = entries.map((entry) => entry.title);
 
     const container = document.getElementById("library-container");
     container.innerHTML = "";
