@@ -97,6 +97,10 @@ body {
     max-width: 100%;
 }
 
+#selected-tags::before {
+    content: 'tags: ';
+}
+
 html:not(.authorized) .requires-auth,
 .authorized #auth-form {
     display: none;
