@@ -47,11 +47,11 @@
       <fieldset id="selected" hidden>
         <legend>edit selected</legend>
         <video controls id="selected-preview"></video>
-        <div>
+        <div class="requires-auth" hidden>
           <input type="text" id="selected-title" placeholder="title..." minlength="1" maxlength="128" required>
           <button id="selected-retitle">retitle</button>
         </div>
-        <div>
+        <div class="requires-auth" hidden>
           <input id="selected-tagname" type="text" minlength="1" maxlength="64" required>
           <button id="selected-tag">tag</button>
           <button id="selected-untag">untag</button>
@@ -59,7 +59,7 @@
         <div id="selected-tags">
           tag, tagged, tags
         </div>
-        <details>
+        <details class="requires-auth" hidden>
           <summary>subtitles</summary>
           <input id="subtitle-file" type="file" accept=".vtt" required>
           <button id="subtitle-upload">upload subtitles</button>
