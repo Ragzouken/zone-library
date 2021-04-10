@@ -243,14 +243,22 @@ async function start() {
         }
     });
 
-    document.getElementById("subtitle-upload").addEventListener("click", async () => {
-        const subtitle = document.getElementById("subtitle-file").files[0];
-        const result = await uploadSubtitle(auth, selectedEntry.mediaId, subtitle);
-        const entries = await refresh();
+    document.getElementById("subtitles-form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        form.classList.add('busy');
+        try {
+            const formData = new FormData(form);
+            const subtitle = formData.get("file");
+            const result = await uploadSubtitle(auth, selectedEntry.mediaId, subtitle);
+            const entries = await refresh();
 
-        if (result.mediaId) {
-            const selected = entries.find((entry) => entry.mediaId === result.mediaId);
-            select(selected);
+            if (result.mediaId) {
+                const selected = entries.find((entry) => entry.mediaId === result.mediaId);
+                select(selected);
+            }
+        } finally {
+            form.classList.remove('busy');
         }
     });
 

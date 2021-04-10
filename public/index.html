@@ -60,11 +60,13 @@
         <div id="selected-tags">
           tag, tagged, tags
         </div>
-        <details class="requires-auth">
-          <summary>subtitles</summary>
-          <input id="subtitle-file" type="file" accept=".vtt" required>
-          <button id="subtitle-upload">upload subtitles</button>
-        </details>
+        <form id="subtitles-form" class="requires-auth">
+          <details>
+            <summary>subtitles</summary>
+            <input name="file" type="file" accept=".vtt" required>
+            <input type="submit" value="upload subtitles" />
+          </details>
+        </form>
       </fieldset>
     </div>
     <div id="library-container">
