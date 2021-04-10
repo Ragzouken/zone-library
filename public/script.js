@@ -146,11 +146,25 @@ function html(tagName, attributes = {}, ...children) {
 }
 
 async function start() {
-    const authInput = document.getElementById("password");
+    let auth;
+    document.getElementById("auth-form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const formData = new FormData(form);
+        const authAttempt = formData.get('password');
+        const result = await checkLibraryAuth(authAttempt).catch(() => ({}));
+        if (result.authorized) {
+            auth = authAttempt;
+            form.hidden = true;
+            document.querySelectorAll('.requires-auth').forEach(i => {
+                i.hidden = false;
+            });
+        }
+    });
 
     document.getElementById("selected-retitle").addEventListener("click", async () => {
         const title = document.getElementById("selected-title").value;
-        const result = await retitleLibraryEntry(selectedEntry.mediaId, authInput.value, title);
+        const result = await retitleLibraryEntry(selectedEntry.mediaId, auth, title);
 
         const entries = await refresh();
 
@@ -162,7 +176,7 @@ async function start() {
 
     document.getElementById("selected-tag").addEventListener("click", async () => {
         const tagname = document.getElementById("selected-tagname").value;
-        const result = await tagLibraryEntry(selectedEntry.mediaId, authInput.value, tagname);
+        const result = await tagLibraryEntry(selectedEntry.mediaId, auth, tagname);
 
         const entries = await refresh();
 
@@ -175,7 +189,7 @@ async function start() {
 
     document.getElementById("selected-untag").addEventListener("click", async () => {
         const tagname = document.getElementById("selected-tagname").value;
-        const result = await untagLibraryEntry(selectedEntry.mediaId, authInput.value, tagname);
+        const result = await untagLibraryEntry(selectedEntry.mediaId, auth, tagname);
 
         const entries = await refresh();
 
@@ -193,7 +207,7 @@ async function start() {
             const media = document.getElementById("upload-media").files[0];
 
             uploadProgress.innerHTML = "uploading...";
-            const result = await uploadMedia(authInput.value, media, title);
+            const result = await uploadMedia(auth, media, title);
             const entries = await refresh();
 
             if (result.mediaId) {
@@ -210,7 +224,7 @@ async function start() {
 
     document.getElementById("subtitle-upload").addEventListener("click", async () => {
         const subtitle = document.getElementById("subtitle-file").files[0];
-        const result = await uploadSubtitle(authInput.value, selectedEntry.mediaId, subtitle);
+        const result = await uploadSubtitle(auth, selectedEntry.mediaId, subtitle);
         const entries = await refresh();
 
         if (result.mediaId) {
@@ -226,7 +240,7 @@ async function start() {
         const youtubeId = new URL(url).searchParams.get("v");
         console.log(youtubeId);
 
-        const result = await downloadYoutube(authInput.value, youtubeId);
+        const result = await downloadYoutube(auth, youtubeId);
         const entries = await refresh();
 
         if (result.mediaId) {
@@ -239,7 +253,7 @@ async function start() {
         const input = document.getElementById("tweet-url");
         const url = input.value;
         input.value = "";
-        const result = await downloadTweet(authInput.value, url);
+        const result = await downloadTweet(auth, url);
         const entries = await refresh();
 
         if (result.mediaId) {
