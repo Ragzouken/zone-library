@@ -151,17 +151,20 @@ async function start() {
         event.preventDefault();
         const form = event.currentTarget;
         form.classList.add('busy');
-        const formData = new FormData(form);
-        const authAttempt = formData.get('password');
-        const result = await checkLibraryAuth(authAttempt).catch(() => ({}));
-        if (result.authorized) {
-            auth = authAttempt;
-            form.hidden = true;
-            document.querySelectorAll('.requires-auth').forEach(i => {
-                i.hidden = false;
-            });
+        try {
+            const formData = new FormData(form);
+            const authAttempt = formData.get('password');
+            const result = await checkLibraryAuth(authAttempt).catch(() => ({}));
+            if (result.authorized) {
+                auth = authAttempt;
+                form.hidden = true;
+                document.querySelectorAll('.requires-auth').forEach(i => {
+                    i.hidden = false;
+                });
+            }
+        } finally {
+            form.classList.remove('busy');
         }
-        form.classList.remove('busy');
     });
 
     document.getElementById("selected-retitle").addEventListener("click", async () => {
