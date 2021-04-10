@@ -17,7 +17,7 @@
           <input type="submit" />
         </fieldset>
       </form>
-      <form class="requires-auth" hidden id="upload-form" action="">
+      <form class="requires-auth" id="upload-form" action="">
         <fieldset>
           <legend>upload</legend>
           <input name="title" type="text" placeholder="title..." minlength="1" maxlength="64" required>
@@ -26,7 +26,7 @@
           <p id="upload-progress">enter a file to upload</p>
         </fieldset>
       </form>
-      <form class="requires-auth" hidden id="youtube-form" action="">
+      <form class="requires-auth" id="youtube-form" action="">
         <fieldset>
           <legend>youtube</legend>
           <div>
@@ -35,8 +35,8 @@
           </div>
         </fieldset>
       </form>
-      <form class="requires-auth" hidden id="tweet-form" action="">
-        <fieldset class="requires-auth" hidden>
+      <form class="requires-auth" id="tweet-form" action="">
+        <fieldset class="requires-auth">
           <legend>tweet</legend>
           <div>
             <input name="url" type="text" placeholder="https://twitter.com/dobby/status/80085" required/>
@@ -47,11 +47,11 @@
       <fieldset id="selected" hidden>
         <legend>edit selected</legend>
         <video controls id="selected-preview"></video>
-        <div class="requires-auth" hidden>
+        <div class="requires-auth">
           <input type="text" id="selected-title" placeholder="title..." minlength="1" maxlength="128" required>
           <button id="selected-retitle">retitle</button>
         </div>
-        <div class="requires-auth" hidden>
+        <div class="requires-auth">
           <input id="selected-tagname" type="text" minlength="1" maxlength="64" required>
           <button id="selected-tag">tag</button>
           <button id="selected-untag">untag</button>
@@ -59,7 +59,7 @@
         <div id="selected-tags">
           tag, tagged, tags
         </div>
-        <details class="requires-auth" hidden>
+        <details class="requires-auth">
           <summary>subtitles</summary>
           <input id="subtitle-file" type="file" accept=".vtt" required>
           <button id="subtitle-upload">upload subtitles</button>

@@ -157,10 +157,7 @@ async function start() {
             const result = await checkLibraryAuth(authAttempt).catch(() => ({}));
             if (result.authorized) {
                 auth = authAttempt;
-                form.hidden = true;
-                document.querySelectorAll('.requires-auth').forEach(i => {
-                    i.hidden = false;
-                });
+                document.documentElement.classList.add('authorized');
             }
         } finally {
             form.classList.remove('busy');

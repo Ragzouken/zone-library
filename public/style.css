@@ -97,6 +97,11 @@ body {
     max-width: 100%;
 }
 
+html:not(.authorized) .requires-auth,
+.authorized #auth-form {
+    display: none;
+}
+
 .busy {
     cursor: wait;
     background: rgb(200,200,200);
