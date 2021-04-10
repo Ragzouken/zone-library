@@ -189,29 +189,25 @@ async function start() {
         }
     });
 
-    document.getElementById("selected-tag").addEventListener("click", async () => {
-        const tagname = document.getElementById("selected-tagname").value;
-        const result = await tagLibraryEntry(selectedEntry.mediaId, auth, tagname);
+    document.getElementById("tag-form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        form.classList.add('busy');
+        try {
+            const formData = new FormData(form);
+            const tagname = formData.get("tagname");
+            const action = event.submitter.value === 'tag' ? tagLibraryEntry : untagLibraryEntry;
+            const result = await action(selectedEntry.mediaId, auth, tagname);
 
-        const entries = await refresh();
+            const entries = await refresh();
 
-        if (result.mediaId) {
-            const selected = entries.find((entry) => entry.mediaId === selectedEntry.mediaId);
-            select(selected);
-            document.getElementById("selected-tagname").value = "";
-        }
-    });
-
-    document.getElementById("selected-untag").addEventListener("click", async () => {
-        const tagname = document.getElementById("selected-tagname").value;
-        const result = await untagLibraryEntry(selectedEntry.mediaId, auth, tagname);
-
-        const entries = await refresh();
-
-        if (result.mediaId) {
-            const selected = entries.find((entry) => entry.mediaId === selectedEntry.mediaId);
-            select(selected);
-            document.getElementById("selected-tagname").value = "";
+            if (result.mediaId) {
+                const selected = entries.find((entry) => entry.mediaId === selectedEntry.mediaId);
+                select(selected);
+                document.getElementById("selected-tagname").value = "";
+            }
+        } finally {
+            form.classList.remove('busy');
         }
     });
 

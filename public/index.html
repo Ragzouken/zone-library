@@ -51,12 +51,12 @@
           <input type="text" id="selected-title" placeholder="title..." minlength="1" maxlength="128" required>
           <button id="selected-retitle">retitle</button>
         </div>
-        <div class="requires-auth">
-          <input id="selected-tagname" list="tags" type="text" minlength="1" maxlength="64" required>
-          <button id="selected-tag">tag</button>
-          <button id="selected-untag">untag</button>
+        <form id="tag-form" class="requires-auth">
+          <input name="tagname" list="tags" type="text" minlength="1" maxlength="64" required>
+          <input type="submit" value="tag" />
+          <input type="submit" value="untag" />
           <datalist id="tags"></datalist>
-        </div>
+        </form>
         <div id="selected-tags">
           tag, tagged, tags
         </div>
