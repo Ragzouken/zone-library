@@ -206,10 +206,14 @@ async function start() {
     });
 
     const uploadProgress = document.getElementById("upload-progress");
-    document.getElementById("upload-button").addEventListener("click", async () => {
+    document.getElementById("upload-form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        form.classList.add('busy');
         try {
-            const title = document.getElementById("upload-title").value;
-            const media = document.getElementById("upload-media").files[0];
+            const formData = new FormData(form);
+            const title = formData.get("title");
+            const media = formData.get("media");
 
             uploadProgress.innerHTML = "uploading...";
             const result = await uploadMedia(auth, media, title);
@@ -224,6 +228,8 @@ async function start() {
             }
         } catch (e) {
             uploadProgress.innerHTML = e.toString();
+        } finally {
+            form.classList.remove('busy');
         }
     });
 
@@ -238,32 +244,46 @@ async function start() {
         }
     });
 
-    document.getElementById("youtube-button").addEventListener("click", async () => {
-        const input = document.getElementById("youtube-url");
-        const url = input.value;
-        input.value = "";
-        const youtubeId = new URL(url).searchParams.get("v");
-        console.log(youtubeId);
+    document.getElementById("youtube-form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        form.classList.add('busy');
+        try {
+            const formData = new FormData(form);
+            const url = formData.get("url");
+            form.reset();
+            const youtubeId = new URL(url).searchParams.get("v");
+            console.log(youtubeId);
 
-        const result = await downloadYoutube(auth, youtubeId);
-        const entries = await refresh();
+            const result = await downloadYoutube(auth, youtubeId);
+            const entries = await refresh();
 
-        if (result.mediaId) {
-            const selected = entries.find((entry) => entry.mediaId === result.mediaId);
-            select(selected);
+            if (result.mediaId) {
+                const selected = entries.find((entry) => entry.mediaId === result.mediaId);
+                select(selected);
+            }
+        } finally {
+            form.classList.remove('busy');
         }
     });
 
-    document.getElementById("tweet-button").addEventListener("click", async () => {
-        const input = document.getElementById("tweet-url");
-        const url = input.value;
-        input.value = "";
-        const result = await downloadTweet(auth, url);
-        const entries = await refresh();
+    document.getElementById("tweet-form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        form.classList.add('busy');
+        try {
+            const formData = new FormData(form);
+            const url = formData.get("url");
+            form.reset();
+            const result = await downloadTweet(auth, url);
+            const entries = await refresh();
 
-        if (result.mediaId) {
-            const selected = entries.find((entry) => entry.mediaId === result.mediaId);
-            select(selected);
+            if (result.mediaId) {
+                const selected = entries.find((entry) => entry.mediaId === result.mediaId);
+                select(selected);
+            }
+        } finally {
+            form.classList.remove('busy');
         }
     });
 

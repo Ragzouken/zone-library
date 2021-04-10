@@ -17,27 +17,33 @@
           <input type="submit" />
         </fieldset>
       </form>
-      <fieldset class="requires-auth" hidden>
-        <legend>upload</legend>
-        <input id="upload-title" type="text" placeholder="title..." minlength="1" maxlength="64" required>
-        <input id="upload-media" type="file" accept=".mp4,.mp3" required>
-        <button id="upload-button">upload</button>
-        <p id="upload-progress">enter a file to upload</p>
-      </fieldset>
-      <fieldset class="requires-auth" hidden>
-        <legend>youtube</legend>
-        <div>
-          <input id="youtube-url" type="text" placeholder="https://youtube.com/watch?v=DOBBY">
-          <button id="youtube-button">save youtube</button>
-        </div>
-      </fieldset>
-      <fieldset class="requires-auth" hidden>
-        <legend>tweet</legend>
-        <div>
-          <input id="tweet-url" type="text" placeholder="https://twitter.com/dobby/status/80085">
-          <button id="tweet-button">save tweet</button>
-        </div>
-      </fieldset>
+      <form class="requires-auth" hidden id="upload-form" action="">
+        <fieldset>
+          <legend>upload</legend>
+          <input name="title" type="text" placeholder="title..." minlength="1" maxlength="64" required>
+          <input name="media" type="file" accept=".mp4,.mp3" required>
+          <input type="submit" value="upload" />
+          <p id="upload-progress">enter a file to upload</p>
+        </fieldset>
+      </form>
+      <form class="requires-auth" hidden id="youtube-form" action="">
+        <fieldset>
+          <legend>youtube</legend>
+          <div>
+            <input name="url" type="text" placeholder="https://youtube.com/watch?v=DOBBY" required/>
+            <input type="submit" value="save youtube" />
+          </div>
+        </fieldset>
+      </form>
+      <form class="requires-auth" hidden id="tweet-form" action="">
+        <fieldset class="requires-auth" hidden>
+          <legend>tweet</legend>
+          <div>
+            <input name="url" type="text" placeholder="https://twitter.com/dobby/status/80085" required/>
+            <input type="submit" value="save tweet" />
+          </div>
+        </fieldset>
+      </form>
       <fieldset id="selected" hidden>
         <legend>edit selected</legend>
         <video controls id="selected-preview"></video>
