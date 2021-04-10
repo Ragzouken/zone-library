@@ -12,6 +12,10 @@ async function libraryRequest(path, { search={}, auth, method="GET", body }={}) 
     return fetch(url, init).then((response) => response.json());
 }
 
+async function checkLibraryAuth(auth) {
+    return libraryRequest("/library/auth", { method: "POST", auth });
+}
+
 async function searchLibrary(params) {
     return libraryRequest("/library", { search: params });
 }
@@ -98,7 +102,6 @@ async function downloadTweet(auth, tweetURL) {
 
 async function refresh() {
     const entries = await searchLibrary();
-    const titles = entries.map((entry) => entry.title);
 
     const container = document.getElementById("library-container");
     container.innerHTML = "";
@@ -112,6 +115,22 @@ async function refresh() {
         row.addEventListener("click", () => select(entry));
         container.appendChild(row);
     });
+    const tagContainer = document.getElementById('tags');
+    tagContainer.textContent = '';
+        Object.entries(
+            entries
+                .flatMap(i => i.tags)
+                .reduce((tags, tag) => {
+                    tags[tag] = (tags[tag] || 0) + 1;
+                    return tags;
+                }, {})
+        )
+            .sort(([, a], [, b]) => b - a)
+            .forEach(([tag]) => {
+                const option = document.createElement('option');
+                option.value = tag;
+                tagContainer.appendChild(option);
+            });
 
     return entries;
 }
@@ -142,54 +161,79 @@ function html(tagName, attributes = {}, ...children) {
 }
 
 async function start() {
-    const authInput = document.getElementById("password");
-
-    document.getElementById("selected-retitle").addEventListener("click", async () => {
-        const title = document.getElementById("selected-title").value;
-        const result = await retitleLibraryEntry(selectedEntry.mediaId, authInput.value, title);
-
-        const entries = await refresh();
-
-        if (result.mediaId) {
-            const selected = entries.find((entry) => entry.mediaId === selectedEntry.mediaId);
-            select(selected);
+    let auth;
+    document.getElementById("auth-form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        form.classList.add('busy');
+        try {
+            const formData = new FormData(form);
+            const authAttempt = formData.get('password');
+            const result = await checkLibraryAuth(authAttempt).catch(() => ({}));
+            if (result.authorized) {
+                auth = authAttempt;
+                document.documentElement.classList.add('authorized');
+            }
+        } finally {
+            form.classList.remove('busy');
         }
     });
 
-    document.getElementById("selected-tag").addEventListener("click", async () => {
-        const tagname = document.getElementById("selected-tagname").value;
-        const result = await tagLibraryEntry(selectedEntry.mediaId, authInput.value, tagname);
+    document.getElementById("retitle-form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        form.classList.add('busy');
+        try {
+            const formData = new FormData(form);
+            const title = formData.get("title");
+            const result = await retitleLibraryEntry(selectedEntry.mediaId, auth, title);
 
-        const entries = await refresh();
+            const entries = await refresh();
 
-        if (result.mediaId) {
-            const selected = entries.find((entry) => entry.mediaId === selectedEntry.mediaId);
-            select(selected);
-            document.getElementById("selected-tagname").value = "";
+            if (result.mediaId) {
+                const selected = entries.find((entry) => entry.mediaId === selectedEntry.mediaId);
+                select(selected);
+            }
+        } finally {
+            form.classList.remove('busy');
         }
     });
 
-    document.getElementById("selected-untag").addEventListener("click", async () => {
-        const tagname = document.getElementById("selected-tagname").value;
-        const result = await untagLibraryEntry(selectedEntry.mediaId, authInput.value, tagname);
+    document.getElementById("tag-form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        form.classList.add('busy');
+        try {
+            const formData = new FormData(form);
+            const tagname = formData.get("tagname");
+            const action = event.submitter.value === 'tag' ? tagLibraryEntry : untagLibraryEntry;
+            const result = await action(selectedEntry.mediaId, auth, tagname);
 
-        const entries = await refresh();
+            const entries = await refresh();
 
-        if (result.mediaId) {
-            const selected = entries.find((entry) => entry.mediaId === selectedEntry.mediaId);
-            select(selected);
-            document.getElementById("selected-tagname").value = "";
+            if (result.mediaId) {
+                const selected = entries.find((entry) => entry.mediaId === selectedEntry.mediaId);
+                select(selected);
+                form.reset();
+            }
+        } finally {
+            form.classList.remove('busy');
         }
     });
 
     const uploadProgress = document.getElementById("upload-progress");
-    document.getElementById("upload-button").addEventListener("click", async () => {
+    document.getElementById("upload-form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        form.classList.add('busy');
         try {
-            const title = document.getElementById("upload-title").value;
-            const media = document.getElementById("upload-media").files[0];
+            const formData = new FormData(form);
+            const title = formData.get("title");
+            const media = formData.get("media");
 
-            uploadProgress.innerHTML = "uploading...";
-            const result = await uploadMedia(authInput.value, media, title);
+            uploadProgress.innerText = "";
+            uploadProgress.appendChild(document.createElement('progress'));
+            const result = await uploadMedia(auth, media, title);
             const entries = await refresh();
 
             if (result.mediaId) {
@@ -201,46 +245,70 @@ async function start() {
             }
         } catch (e) {
             uploadProgress.innerHTML = e.toString();
+        } finally {
+            form.classList.remove('busy');
         }
     });
 
-    document.getElementById("subtitle-upload").addEventListener("click", async () => {
-        const subtitle = document.getElementById("subtitle-file").files[0];
-        const result = await uploadSubtitle(authInput.value, selectedEntry.mediaId, subtitle);
-        const entries = await refresh();
+    document.getElementById("subtitles-form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        form.classList.add('busy');
+        try {
+            const formData = new FormData(form);
+            const subtitle = formData.get("file");
+            const result = await uploadSubtitle(auth, selectedEntry.mediaId, subtitle);
+            const entries = await refresh();
 
-        if (result.mediaId) {
-            const selected = entries.find((entry) => entry.mediaId === result.mediaId);
-            select(selected);
+            if (result.mediaId) {
+                const selected = entries.find((entry) => entry.mediaId === result.mediaId);
+                select(selected);
+            }
+        } finally {
+            form.classList.remove('busy');
         }
     });
 
-    document.getElementById("youtube-button").addEventListener("click", async () => {
-        const input = document.getElementById("youtube-url");
-        const url = input.value;
-        input.value = "";
-        const youtubeId = new URL(url).searchParams.get("v");
-        console.log(youtubeId);
+    document.getElementById("youtube-form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        form.classList.add('busy');
+        try {
+            const formData = new FormData(form);
+            const url = formData.get("url");
+            form.reset();
+            const youtubeId = new URL(url).searchParams.get("v");
+            console.log(youtubeId);
 
-        const result = await downloadYoutube(authInput.value, youtubeId);
-        const entries = await refresh();
+            const result = await downloadYoutube(auth, youtubeId);
+            const entries = await refresh();
 
-        if (result.mediaId) {
-            const selected = entries.find((entry) => entry.mediaId === result.mediaId);
-            select(selected);
+            if (result.mediaId) {
+                const selected = entries.find((entry) => entry.mediaId === result.mediaId);
+                select(selected);
+            }
+        } finally {
+            form.classList.remove('busy');
         }
     });
 
-    document.getElementById("tweet-button").addEventListener("click", async () => {
-        const input = document.getElementById("tweet-url");
-        const url = input.value;
-        input.value = "";
-        const result = await downloadTweet(authInput.value, url);
-        const entries = await refresh();
+    document.getElementById("tweet-form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        form.classList.add('busy');
+        try {
+            const formData = new FormData(form);
+            const url = formData.get("url");
+            form.reset();
+            const result = await downloadTweet(auth, url);
+            const entries = await refresh();
 
-        if (result.mediaId) {
-            const selected = entries.find((entry) => entry.mediaId === result.mediaId);
-            select(selected);
+            if (result.mediaId) {
+                const selected = entries.find((entry) => entry.mediaId === result.mediaId);
+                select(selected);
+            }
+        } finally {
+            form.classList.remove('busy');
         }
     });
 

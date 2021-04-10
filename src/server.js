@@ -169,6 +169,10 @@ app.post("/library/:media/request", (request, response) => {
 });
 //
 
+app.post("/library/auth", requireAuth, async (request, response) => {
+    response.json({ authorized: true });
+});
+
 app.post("/library", requireAuth, async (request, response) => {
     const file = request.files.media;
     const parsed = parse(file.name);
@@ -267,7 +271,7 @@ app.post("/library-get-tweet", requireAuth, async (request, response) => {
     console.log(path);
 
     video.on('error', (info) => {
-        console.log("PAGE ERROR", youtubeId);
+        console.log("TWEET ERROR", url);
         response.status(503).json(info);
     });
 
@@ -280,5 +284,5 @@ app.post("/library-get-tweet", requireAuth, async (request, response) => {
 });
 
 const listener = app.listen(process.env.PORT, process.env.HOST, () => {
-    console.log("zone library serving on " + listener.address().port);
+    console.log("zone library serving on http://localhost:" + listener.address().port);
 });
