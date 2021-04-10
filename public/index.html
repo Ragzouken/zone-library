@@ -52,9 +52,10 @@
           <button id="selected-retitle">retitle</button>
         </div>
         <div class="requires-auth">
-          <input id="selected-tagname" type="text" minlength="1" maxlength="64" required>
+          <input id="selected-tagname" list="tags" type="text" minlength="1" maxlength="64" required>
           <button id="selected-tag">tag</button>
           <button id="selected-untag">untag</button>
+          <datalist id="tags"></datalist>
         </div>
         <div id="selected-tags">
           tag, tagged, tags

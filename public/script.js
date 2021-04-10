@@ -116,6 +116,19 @@ async function refresh() {
         row.addEventListener("click", () => select(entry));
         container.appendChild(row);
     });
+    const tagContainer = document.getElementById('tags');
+    tagContainer.textContent = '';
+        entries
+            .flatMap(i => i.tags)
+            .reduce((tags, tag) => {
+                tags.add(tag);
+                return tags;
+            }, new Set())
+            .forEach(tag => {
+                const option = document.createElement('option');
+                option.value = tag;
+                tagContainer.appendChild(option);
+            });
 
     return entries;
 }
