@@ -117,13 +117,16 @@ async function refresh() {
     });
     const tagContainer = document.getElementById('tags');
     tagContainer.textContent = '';
-        entries
-            .flatMap(i => i.tags)
-            .reduce((tags, tag) => {
-                tags.add(tag);
-                return tags;
-            }, new Set())
-            .forEach(tag => {
+        Object.entries(
+            entries
+                .flatMap(i => i.tags)
+                .reduce((tags, tag) => {
+                    tags[tag] = (tags[tag] || 0) + 1;
+                    return tags;
+                }, {})
+        )
+            .sort(([, a], [, b]) => b - a)
+            .forEach(([tag]) => {
                 const option = document.createElement('option');
                 option.value = tag;
                 tagContainer.appendChild(option);
