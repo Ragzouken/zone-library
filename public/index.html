@@ -47,10 +47,10 @@
       <fieldset id="selected" hidden>
         <legend><span class="requires-auth">edit </span>selected</legend>
         <video controls id="selected-preview"></video>
-        <div class="requires-auth">
-          <input type="text" id="selected-title" placeholder="title..." minlength="1" maxlength="128" required>
-          <button id="selected-retitle">retitle</button>
-        </div>
+        <form id="retitle-form" class="requires-auth">
+          <input id="selected-title" type="text" name="title" placeholder="title..." minlength="1" maxlength="128" required>
+          <input type="submit" value="retitle" />
+        </form>
         <form id="tag-form" class="requires-auth">
           <input name="tagname" list="tags" type="text" minlength="1" maxlength="64" required>
           <input type="submit" value="tag" />

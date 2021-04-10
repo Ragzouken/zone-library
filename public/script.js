@@ -177,15 +177,23 @@ async function start() {
         }
     });
 
-    document.getElementById("selected-retitle").addEventListener("click", async () => {
-        const title = document.getElementById("selected-title").value;
-        const result = await retitleLibraryEntry(selectedEntry.mediaId, auth, title);
+    document.getElementById("retitle-form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        form.classList.add('busy');
+        try {
+            const formData = new FormData(form);
+            const title = formData.get("title");
+            const result = await retitleLibraryEntry(selectedEntry.mediaId, auth, title);
 
-        const entries = await refresh();
+            const entries = await refresh();
 
-        if (result.mediaId) {
-            const selected = entries.find((entry) => entry.mediaId === selectedEntry.mediaId);
-            select(selected);
+            if (result.mediaId) {
+                const selected = entries.find((entry) => entry.mediaId === selectedEntry.mediaId);
+                select(selected);
+            }
+        } finally {
+            form.classList.remove('busy');
         }
     });
 
