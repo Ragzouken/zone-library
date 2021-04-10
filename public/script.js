@@ -150,6 +150,7 @@ async function start() {
     document.getElementById("auth-form").addEventListener("submit", async (event) => {
         event.preventDefault();
         const form = event.currentTarget;
+        form.classList.add('busy');
         const formData = new FormData(form);
         const authAttempt = formData.get('password');
         const result = await checkLibraryAuth(authAttempt).catch(() => ({}));
@@ -160,6 +161,7 @@ async function start() {
                 i.hidden = false;
             });
         }
+        form.classList.remove('busy');
     });
 
     document.getElementById("selected-retitle").addEventListener("click", async () => {
