@@ -211,7 +211,7 @@ async function start() {
             if (result.mediaId) {
                 const selected = entries.find((entry) => entry.mediaId === selectedEntry.mediaId);
                 select(selected);
-                document.getElementById("selected-tagname").value = "";
+                form.reset();
             }
         } finally {
             form.classList.remove('busy');
