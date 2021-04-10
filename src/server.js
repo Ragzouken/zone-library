@@ -267,7 +267,7 @@ app.post("/library-get-tweet", requireAuth, async (request, response) => {
     console.log(path);
 
     video.on('error', (info) => {
-        console.log("PAGE ERROR", youtubeId);
+        console.log("TWEET ERROR", url);
         response.status(503).json(info);
     });
 
