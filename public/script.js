@@ -229,7 +229,8 @@ async function start() {
             const title = formData.get("title");
             const media = formData.get("media");
 
-            uploadProgress.innerHTML = "uploading...";
+            uploadProgress.innerText = "";
+            uploadProgress.appendChild(document.createElement('progress'));
             const result = await uploadMedia(auth, media, title);
             const entries = await refresh();
 
