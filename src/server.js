@@ -280,5 +280,5 @@ app.post("/library-get-tweet", requireAuth, async (request, response) => {
 });
 
 const listener = app.listen(process.env.PORT, process.env.HOST, () => {
-    console.log("zone library serving on " + listener.address().port);
+    console.log("zone library serving on http://localhost:" + listener.address().port);
 });
