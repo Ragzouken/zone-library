@@ -169,6 +169,10 @@ app.post("/library/:media/request", (request, response) => {
 });
 //
 
+app.post("/library/auth", requireAuth, async (request, response) => {
+    response.json({ authorized: true });
+});
+
 app.post("/library", requireAuth, async (request, response) => {
     const file = request.files.media;
     const parsed = parse(file.name);

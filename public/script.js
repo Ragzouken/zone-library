@@ -12,6 +12,10 @@ async function libraryRequest(path, { search={}, auth, method="GET", body }={}) 
     return fetch(url, init).then((response) => response.json());
 }
 
+async function checkLibraryAuth(auth) {
+    return libraryRequest("/library/auth", { method: "POST", auth });
+}
+
 async function searchLibrary(params) {
     return libraryRequest("/library", { search: params });
 }
