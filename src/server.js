@@ -3,6 +3,8 @@ const { parse, dirname, join } = require("path");
 const { mkdir, rename, unlink } = require("fs").promises;
 const { createWriteStream } = require('fs');
 const glob = require("glob");
+const { Readable } = require("stream");
+const srt2vtt = require('srt-to-vtt');
 
 const express = require("express");
 const fileUpload = require('express-fileupload');
@@ -198,10 +200,17 @@ app.post("/library", requireAuth, async (request, response) => {
 
 app.put("/library/:media/subtitles", requireAuth, async (request, response) => {
     const file = request.files.subtitles;
-    
     const filename = request.libraryEntry.mediaId + ".vtt";
     const path = join(MEDIA_PATH, filename);
-    await file.mv(path);
+    
+    if (file.name.endsWith(".vtt")) {
+        await file.mv(path);
+    } else {
+        // don't know how to await this properly
+        Readable.from(file.data)
+        .pipe(srt2vtt())
+        .pipe(createWriteStream(path));
+    }
 
     request.libraryEntry.subtitle = filename;
     response.json(request.libraryEntry);
