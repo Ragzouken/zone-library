@@ -208,7 +208,7 @@ app.put("/library/:media/subtitles", requireAuth, async (request, response) => {
     } else {
         // don't know how to await this properly
         const read = file.data 
-                   ? Readable.from(file.data) 
+                   ? Readable.from(file.data.toString()) 
                    : createReadStream(file.tempFilePath);
         read
         .pipe(srt2vtt())
