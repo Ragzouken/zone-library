@@ -1,7 +1,7 @@
 const { nanoid } = require("nanoid");
 const { parse, dirname, join } = require("path");
 const { mkdir, rename, unlink } = require("fs").promises;
-const { createWriteStream } = require('fs');
+const { createWriteStream, createReadStream } = require('fs');
 const glob = require("glob");
 const { Readable } = require("stream");
 const srt2vtt = require('srt-to-vtt');
@@ -207,7 +207,10 @@ app.put("/library/:media/subtitles", requireAuth, async (request, response) => {
         await file.mv(path);
     } else {
         // don't know how to await this properly
-        Readable.from(file.data)
+        const read = file.data 
+                   ? Readable.from(file.data) 
+                   : createReadStream(file.tempFilePath);
+        read
         .pipe(srt2vtt())
         .pipe(createWriteStream(path));
     }
