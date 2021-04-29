@@ -212,7 +212,8 @@ app.put("/library/:media/subtitles", requireAuth, async (request, response) => {
                    : createReadStream(file.tempFilePath);
         read
         .pipe(srt2vtt())
-        .pipe(createWriteStream(path));
+        .pipe(createWriteStream(path))
+        .on("error", (e) => console.log("SUBTITLE FAILED: ", e));
     }
 
     request.libraryEntry.subtitle = filename;
