@@ -106,6 +106,13 @@ body {
     content: 'tags: ';
 }
 
+#subtitles-link[href=''] {
+    display: none;
+}
+#subtitles-link:not([href=''])+span {
+    display: none;
+}
+
 html:not(.authorized) .requires-auth,
 .authorized #auth-form {
     display: none;

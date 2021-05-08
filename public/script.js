@@ -321,6 +321,7 @@ function select(entry) {
     const previewVideo = document.getElementById("selected-preview");
     const titleInput = document.getElementById("selected-title");
     const tagsContainer = document.getElementById("selected-tags");
+    const subtitlesLink = document.getElementById('subtitles-link');
 
     selectedEntry = entry;
     selectedContainer.hidden = false;
@@ -336,5 +337,8 @@ function select(entry) {
         subtrack.src = new URL(entry.subtitle, location.origin);
         previewVideo.appendChild(subtrack);
         previewVideo.textTracks[0].mode = 'showing';
+        subtitlesLink.href = subtrack.src;
+    } else {
+        subtitlesLink.href = '';
     }
 }
