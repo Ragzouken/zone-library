@@ -59,6 +59,7 @@ body {
 .library-row {
     width: 100%;
     padding: .5em;
+    gap: .5em;
     display: flex;
     flex-direction: row;
 
