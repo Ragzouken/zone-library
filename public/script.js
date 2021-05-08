@@ -103,12 +103,12 @@ async function downloadTweet(auth, tweetURL) {
 async function refresh() {
     const entries = await searchLibrary();
 
-    const container = document.getElementById("library-container");
+    const container = document.querySelector("#library-container ul");
     container.innerHTML = "";
     entries.forEach((entry) => {
         const row = html(
             "li", 
-            { class: "library-row" }, 
+            { class: "library-row", 'data-title': entry.title }, 
             html("span", { class: "row-title" }, entry.title), 
             html("time", { class: "row-duration", datetime: `${entry.duration / 1000}S` } , secondsToTime(entry.duration / 1000)),
         );
@@ -310,6 +310,14 @@ async function start() {
         } finally {
             form.classList.remove('busy');
         }
+    });
+
+    const filterStyle = document.getElementById("library-filter-style");
+    document.getElementById("library-filter-input").addEventListener("input", (event) => {
+        filterStyle.textContent = event.currentTarget.value && `
+.library-row:not([data-title*="${event.currentTarget.value.replace(/"/g, '\\"')}"]) {
+    display: none;
+}`;
     });
 
     refresh();

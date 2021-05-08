@@ -6,6 +6,7 @@
     <title>zone upload 2</title>
     <script src="script.js"></script>
     <link rel="stylesheet" href="style.css">
+    <style id="library-filter-style"></style>
   </head>
   <body onload="start()">
     <div id="sidebar">
@@ -75,8 +76,14 @@
         </form>
       </fieldset>
     </div>
-    <ul id="library-container">
-
-    </ul>
+    <div id="library-container">
+      <label>
+        Filter:
+        <input id="library-filter-input" type="text" />
+      </label>
+      <ul>
+  
+      </ul>
+    </div>
   </body>
 </html>
