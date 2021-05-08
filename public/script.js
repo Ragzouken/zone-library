@@ -107,10 +107,10 @@ async function refresh() {
     container.innerHTML = "";
     entries.forEach((entry) => {
         const row = html(
-            "div", 
+            "li", 
             { class: "library-row" }, 
-            html("div", { class: "row-title" }, entry.title), 
-            html("div", { class: "row-duration" } , secondsToTime(entry.duration / 1000)),
+            html("span", { class: "row-title" }, entry.title), 
+            html("time", { class: "row-duration", datetime: `${entry.duration / 1000}S` } , secondsToTime(entry.duration / 1000)),
         );
         row.addEventListener("click", () => select(entry));
         container.appendChild(row);
