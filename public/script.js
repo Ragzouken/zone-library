@@ -103,14 +103,14 @@ async function downloadTweet(auth, tweetURL) {
 async function refresh() {
     const entries = await searchLibrary();
 
-    const container = document.getElementById("library-container");
+    const container = document.querySelector("#library-container ul");
     container.innerHTML = "";
     entries.forEach((entry) => {
         const row = html(
-            "div", 
-            { class: "library-row" }, 
-            html("div", { class: "row-title" }, entry.title), 
-            html("div", { class: "row-duration" } , secondsToTime(entry.duration / 1000)),
+            "li", 
+            { class: "library-row", 'data-title': entry.title }, 
+            html("span", { class: "row-title" }, entry.title), 
+            html("time", { class: "row-duration", datetime: `${entry.duration / 1000}S` } , secondsToTime(entry.duration / 1000)),
         );
         row.addEventListener("click", () => select(entry));
         container.appendChild(row);
@@ -312,6 +312,14 @@ async function start() {
         }
     });
 
+    const filterStyle = document.getElementById("library-filter-style");
+    document.getElementById("library-filter-input").addEventListener("input", (event) => {
+        filterStyle.textContent = event.currentTarget.value && `
+.library-row:not([data-title*="${event.currentTarget.value.replace(/"/g, '\\"')}"]) {
+    display: none;
+}`;
+    });
+
     refresh();
 }
 
@@ -321,6 +329,7 @@ function select(entry) {
     const previewVideo = document.getElementById("selected-preview");
     const titleInput = document.getElementById("selected-title");
     const tagsContainer = document.getElementById("selected-tags");
+    const subtitlesLink = document.getElementById('subtitles-link');
 
     selectedEntry = entry;
     selectedContainer.hidden = false;
@@ -336,5 +345,8 @@ function select(entry) {
         subtrack.src = new URL(entry.subtitle, location.origin);
         previewVideo.appendChild(subtrack);
         previewVideo.textTracks[0].mode = 'showing';
+        subtitlesLink.href = subtrack.src;
+    } else {
+        subtitlesLink.href = '';
     }
 }
