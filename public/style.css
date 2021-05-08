@@ -70,6 +70,7 @@ body {
 }
 #library-container > label > input {
     flex: auto;
+    min-width: 0;
 }
 
 #library-container > ul {
