@@ -45,7 +45,11 @@ html {
 
 body {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
+}
+
+input {
+    min-width: 0;
 }
 
 #library-container {
@@ -70,7 +74,6 @@ body {
 }
 #library-container > label > input {
     flex: auto;
-    min-width: 0;
 }
 
 #library-container > ul {
@@ -116,7 +119,6 @@ body {
 
 #sidebar {
     flex-shrink: 0;
-    flex-basis: 25em;
 }
 
 #selected-preview {
@@ -148,4 +150,14 @@ html:not(.authorized) .requires-auth,
 
 .busy > * {
     pointer-events: none;;
+}
+
+@media screen and (min-width: 512px) {
+    body {
+        flex-direction: row;
+    }
+
+    #sidebar {
+        flex-basis: 25em;
+    }
 }
