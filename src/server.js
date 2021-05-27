@@ -171,6 +171,10 @@ app.post("/library/:media/request", (request, response) => {
 });
 //
 
+app.get("/library-limit", async (request, response) => {
+    response.json({ limit: process.env.UPLOAD_LIMIT_MB * 1024 * 1024 });
+});
+
 app.post("/library/auth", requireAuth, async (request, response) => {
     response.json({ authorized: true });
 });

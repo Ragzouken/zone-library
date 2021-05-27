@@ -43,6 +43,11 @@ async function untagLibraryEntry(id, auth, ...tags) {
     return libraryRequest("/library/" + id, { method: "PATCH", auth, body });
 }
 
+async function getSizeLimit() {
+    const url = new URL("/library-limit", location.origin);
+    return fetch(url).then((response) => response.json()).then((j) => j.limit);
+}
+
 async function uploadMedia(auth, media, title) {
     const url = new URL("/library", location.origin);
     const body = new FormData();
@@ -233,6 +238,12 @@ async function start() {
 
             uploadProgress.innerText = "";
             uploadProgress.appendChild(document.createElement('progress'));
+
+            const limit = await getSizeLimit();
+            if (media.size > limit) {
+                throw Error(`File too big. Limit ${(limit / 1024 / 1024)|0} MiB`)
+            }
+
             const result = await uploadMedia(auth, media, title);
             const entries = await refresh();
 
