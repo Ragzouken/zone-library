@@ -109,11 +109,13 @@ async function refresh() {
     const entries = await searchLibrary();
 
     const container = document.querySelector("#library-container ul");
-    container.innerHTML = "";
+    container.replaceChildren();
     entries.forEach((entry) => {
+        const classes = ["library-row", ...entry.tags.map(tag => "tag-" + tag)].join(" ");
+        console.log(entry)
         const row = html(
             "li", 
-            { class: "library-row", 'data-title': entry.title }, 
+            { class: classes, 'data-title': entry.title }, 
             html("span", { class: "row-title" }, entry.title), 
             html("time", { class: "row-duration", datetime: `${entry.duration / 1000}S` } , secondsToTime(entry.duration / 1000)),
         );

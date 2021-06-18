@@ -113,6 +113,22 @@ input {
     background-color: lightgray;
 }
 
+.tag-music:nth-child(2n+0) {
+    background-color: rgb(250, 220, 225);
+}
+
+.tag-music:nth-child(2n+1) {
+    background-color: rgb(214, 157, 176);
+}
+
+.tag-vine:nth-child(2n+0) {
+    background-color: rgb(220, 250, 224);
+}
+
+.tag-vine:nth-child(2n+1) {
+    background-color: rgb(157, 214, 176);
+}
+
 .library-row:hover {
     background-color: cornflowerblue;
 }
