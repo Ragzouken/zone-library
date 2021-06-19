@@ -327,7 +327,7 @@ async function start() {
     const filterStyle = document.getElementById("library-filter-style");
     document.getElementById("library-filter-input").addEventListener("input", (event) => {
         filterStyle.textContent = event.currentTarget.value && `
-.library-row:not([data-title*="${event.currentTarget.value.replace(/"/g, '\\"')}"]) {
+.library-row:not([data-title*="${event.currentTarget.value.replace(/"/g, '\\"')}"i]) {
     display: none;
 }`;
     });
