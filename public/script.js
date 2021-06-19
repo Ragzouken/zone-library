@@ -112,7 +112,6 @@ async function refresh() {
     container.replaceChildren();
     entries.forEach((entry) => {
         const classes = ["library-row", ...entry.tags.map(tag => "tag-" + tag)].join(" ");
-        console.log(entry)
         const row = html(
             "li", 
             { class: classes, 'data-title': entry.title }, 
