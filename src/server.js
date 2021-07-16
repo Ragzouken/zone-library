@@ -264,12 +264,18 @@ app.post("/library-get-youtube", requireAuth, async (request, response) => {
     const path = `${YOUTUBE_PATH}/${youtubeId}.mp4`;
 
     try {
+        const { title } = await youtubedl(youtubeUrl, {
+            format: "18",
+            forceIpv4: true,
+            dumpSingleJson: true,
+        });
         await youtubedl(youtubeUrl, {
             format: "18",
             forceIpv4: true,
             o: path,
         }, { execPath: __dirname });
         const entry = await addFromLocalFile(path);
+        entry.title = title;
         response.json(entry);
     } catch (error) {
         statuses.set(youtubeId, "failed");
