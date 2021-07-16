@@ -11,7 +11,7 @@ const fileUpload = require('express-fileupload');
 
 const ffprobe = require("ffprobe");
 const ffprobeStatic = require("ffprobe-static");
-const youtubedl = require('youtube-dl');
+const youtubedl = require('youtube-dl-exec');
 
 const joi = require("joi");
 
@@ -261,24 +261,22 @@ app.delete("/library/:media", requireAuth, async (request, response) => {
 app.post("/library-get-youtube", requireAuth, async (request, response) => {
     const youtubeId = request.body.youtubeId;
     const youtubeUrl = `http://www.youtube.com/watch?v=${youtubeId}`;
-    const video = youtubedl(youtubeUrl, ['--format=18', '--force-ipv4'], { cwd: __dirname });
     const path = `${YOUTUBE_PATH}/${youtubeId}.mp4`;
 
-    let title = youtubeId;
-    video.on('info', (info) => title = info.title);
-
-    video.on('error', (info) => {
-        console.log("YOUTUBE ERROR", youtubeId);
-        response.status(503).json(info);
-    });
-
-    video.on('end', async () => {
+    try {
+        await youtubedl(youtubeUrl, {
+            format: "18",
+            forceIpv4: true,
+            o: path,
+        }, { execPath: __dirname });
         const entry = await addFromLocalFile(path);
-        entry.title = title;
         response.json(entry);
-    });
-
-    video.pipe(createWriteStream(path));
+    } catch (error) {
+        statuses.set(youtubeId, "failed");
+        console.log("error", error);
+        console.log("DELETING", youtubeId, "FROM", path);
+        await unlink(path).catch(() => {});
+    }
 });
 
 app.post("/library-get-tweet", requireAuth, async (request, response) => {
