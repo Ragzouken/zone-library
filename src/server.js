@@ -289,12 +289,11 @@ app.post("/library-get-youtube", requireAuth, async (request, response) => {
 
 app.post("/library-get-tweet", requireAuth, async (request, response) => {
     const url = request.body.url;
-    const video = youtubedl(url, [], { cwd: __dirname });
     const path = `${YOUTUBE_PATH}/${nanoid()}.mp4`;
     console.log(path);
 
     try {
-        await youtubedl(youtubeUrl, { o: path }, { execPath: __dirname });
+        await youtubedl(url, { o: path }, { execPath: __dirname });
         const entry = await addFromLocalFile(path);
         response.json(entry);
     } catch (error) {
