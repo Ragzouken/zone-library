@@ -278,6 +278,8 @@ app.post("/library-get-youtube", requireAuth, async (request, response) => {
         entry.title = title;
         response.json(entry);
     } catch (error) {
+        response.status(503).json("download failed");
+
         statuses.set(youtubeId, "failed");
         console.log("error", error);
         console.log("DELETING", youtubeId, "FROM", path);
@@ -291,17 +293,15 @@ app.post("/library-get-tweet", requireAuth, async (request, response) => {
     const path = `${YOUTUBE_PATH}/${nanoid()}.mp4`;
     console.log(path);
 
-    video.on('error', (info) => {
-        console.log("TWEET ERROR", url);
-        response.status(503).json(info);
-    });
-
-    video.on('end', async () => {
+    try {
+        await youtubedl(youtubeUrl, { o: path }, { execPath: __dirname });
         const entry = await addFromLocalFile(path);
         response.json(entry);
-    });
-
-    video.pipe(createWriteStream(path));
+    } catch (error) {
+        response.status(503).json("download failed");
+        console.log("error", error);
+        await unlink(path).catch(() => {});
+    }
 });
 
 const listener = app.listen(process.env.PORT, process.env.HOST, () => {
