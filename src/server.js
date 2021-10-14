@@ -166,6 +166,10 @@ app.get("/library/:media/status", (request, response) => {
     response.json("available");
 });
 
+app.get("/library/:media/progress", (request, response) => {
+    response.json(1);
+});
+
 app.post("/library/:media/request", (request, response) => {
     response.status(202).send();
 });
