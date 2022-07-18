@@ -141,7 +141,8 @@ input {
     background-color: rgb(199, 230, 209);
 }
 
-.library-row:hover {
+.library-row button:hover,
+.library-row button:focus-visible {
     background-color: cornflowerblue;
 }
 
