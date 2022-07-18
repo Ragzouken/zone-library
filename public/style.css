@@ -63,6 +63,7 @@ input {
     overflow: auto;
 }
 
+/* filter controls */
 #library-container > label {
     background: white;
     width: 100%;
@@ -76,6 +77,11 @@ input {
     flex: auto;
 }
 
+/* sort controls */
+#library-sort-input label {
+    display: inline-block;
+}
+
 #library-container > ul {
     width: 100%;
     list-style: none;
@@ -85,11 +91,17 @@ input {
 
 .library-row {
     width: 100%;
+}
+.library-row button {
+    background: none;
+    border: none;
+    width: 100%;
     padding: .5em;
     gap: .5em;
     display: flex;
     flex-direction: row;
 
+    text-align: initial;
     font-family: monospace;
     font-size: 1.2em;
 }
@@ -129,8 +141,13 @@ input {
     background-color: rgb(199, 230, 209);
 }
 
-.library-row:hover {
+.library-row button:hover,
+.library-row button:focus-visible {
     background-color: cornflowerblue;
+}
+
+.library-row[aria-selected="true"] {
+    border-left: solid cornflowerblue 0.5em;
 }
 
 #sidebar {
