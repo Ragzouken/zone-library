@@ -63,6 +63,7 @@ input {
     overflow: auto;
 }
 
+/* filter controls */
 #library-container > label {
     background: white;
     width: 100%;
@@ -74,6 +75,11 @@ input {
 }
 #library-container > label > input {
     flex: auto;
+}
+
+/* sort controls */
+#library-sort-input label {
+    display: inline-block;
 }
 
 #library-container > ul {

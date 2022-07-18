@@ -110,11 +110,11 @@ async function refresh() {
 
     const container = document.querySelector("#library-container ul");
     container.replaceChildren();
-    entries.forEach((entry) => {
+    entries.forEach((entry, index) => {
         const classes = ["library-row", ...entry.tags.map(tag => "tag-" + tag)].join(" ");
         const row = html(
             "li", 
-            { class: classes, 'data-title': entry.title }, 
+            { class: classes, 'data-title': entry.title, 'data-index': index }, 
             html("span", { class: "row-title" }, entry.title), 
             html("time", { class: "row-duration", datetime: `${entry.duration / 1000}S` } , secondsToTime(entry.duration / 1000)),
         );
@@ -331,6 +331,16 @@ async function start() {
     display: none;
 }`;
     });
+
+    function onSort(event) {
+        const by = event.currentTarget.value;
+        const container = document.querySelector("#library-container ul");
+        const children = Array.from(container.children);
+        children.sort((a, b) => (a.dataset[by] || '').localeCompare((b.dataset[by] || ''), undefined, { sensitivity: 'base', ignorePunctuation: true, numeric: true }));
+        container.children.length = 0;
+        children.forEach(c => container.appendChild(c));
+    };
+    Array.from(document.querySelectorAll("#library-sort-input input")).forEach(i => i.addEventListener("change", onSort));
 
     refresh();
 }
