@@ -113,12 +113,14 @@ async function refresh() {
     entries.forEach((entry, index) => {
         const classes = ["library-row", ...entry.tags.map(tag => "tag-" + tag)].join(" ");
         const row = html(
-            "li", 
-            { class: classes, 'data-title': entry.title, 'data-index': index }, 
-            html("span", { class: "row-title" }, entry.title), 
-            html("time", { class: "row-duration", datetime: `${entry.duration / 1000}S` } , secondsToTime(entry.duration / 1000)),
+            'li',
+            { class: classes, 'data-title': entry.title, 'data-index': index },
+            html('button', {}, 
+                html('span', { class: 'row-title' }, entry.title),
+                html('time', { class: 'row-duration', datetime: `${entry.duration / 1000}S` }, secondsToTime(entry.duration / 1000))
+            )
         );
-        row.addEventListener("click", () => select(entry));
+        row.children[0].addEventListener("click", () => select(entry));
         container.appendChild(row);
     });
     const tagContainer = document.getElementById('tags');
