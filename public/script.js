@@ -114,7 +114,7 @@ async function refresh() {
         const classes = ["library-row", ...entry.tags.map(tag => "tag-" + tag)].join(" ");
         const row = html(
             'li',
-            { class: classes, 'data-title': entry.title, 'data-index': index },
+            { class: classes, 'data-title': entry.title, 'data-index': index, 'data-id': entry.mediaId },
             html('button', {}, 
                 html('span', { class: 'row-title' }, entry.title),
                 html('time', { class: 'row-duration', datetime: `${entry.duration / 1000}S` }, secondsToTime(entry.duration / 1000))
@@ -373,4 +373,7 @@ function select(entry) {
     } else {
         subtitlesLink.href = '';
     }
+
+    delete document.querySelector('.library-row[aria-selected="true"]')?.removeAttribute('aria-selected');
+    document.querySelector(`#library-container ul .library-row[data-id="${entry.mediaId}"]`)?.setAttribute('aria-selected', true);
 }

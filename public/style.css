@@ -146,6 +146,10 @@ input {
     background-color: cornflowerblue;
 }
 
+.library-row[aria-selected="true"] {
+    border-left: solid cornflowerblue 0.5em;
+}
+
 #sidebar {
     flex-shrink: 0;
 }
