@@ -63,17 +63,20 @@ input {
     overflow: auto;
 }
 
-/* filter controls */
-#library-container > label {
+#library-container > .controls {
+    top: 0;
     background: white;
     width: 100%;
     position: sticky;
-    top: 0;
+}
+
+/* filter controls */
+#library-container > .controls > label {
     display: flex;
     align-items: center;
     gap: .5em;
 }
-#library-container > label > input {
+#library-container > .controls > label > input {
     flex: auto;
 }
 
