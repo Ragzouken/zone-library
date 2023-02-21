@@ -55,6 +55,7 @@ import ffprobeStatic from "ffprobe-static";
 import joi from "joi";
 import glob from 'glob';
 import { nanoid } from 'nanoid';
+import srt2vtt from 'srt-to-vtt';
 
 const app = express();
 app.use(fileUpload({
