@@ -1,55 +1,60 @@
-const { nanoid } = require("nanoid");
-const { parse, dirname, join } = require("path");
-const { mkdir, rename, unlink } = require("fs").promises;
-const { createWriteStream, createReadStream } = require('fs');
-const glob = require("glob");
-const { Readable } = require("stream");
-const srt2vtt = require('srt-to-vtt');
-
-const express = require("express");
-const fileUpload = require('express-fileupload');
-
-const ffprobe = require("ffprobe");
-const ffprobeStatic = require("ffprobe-static");
-const youtubedl = require('youtube-dl-exec');
-
-const joi = require("joi");
-
-require('dotenv').config();
-require('dotenv').config({ path: ".env.defaults" });
-
-mkdir(process.env.MEDIA_PATH).catch(() => {});
-mkdir(dirname(process.env.DATA_PATH)).catch(() => {});
-
-const low = require('lowdb')
-const FileSync = require('lowdb/adapters/FileSync');
-const db = low(new FileSync(process.env.DATA_PATH, { serialize: JSON.stringify, deserialize: JSON.parse }));
-
-const MEDIA_PATH = process.env.MEDIA_PATH;
-const DUMP_PATH = join(MEDIA_PATH, "dump");
-const YOUTUBE_PATH = join(MEDIA_PATH, "youtube");
+import * as dotenv from 'dotenv';
+dotenv.config();
+dotenv.config({ path: ".env.defaults" });
 
 process.title = "zone library";
 
-db.defaults({
-    entries: [],
-}).write();
-
-const library = new Map(db.get("entries"));
-
-function save() {
-    db.set("entries", Array.from(library)).write();
-}
-
-async function getMediaDurationInSeconds(file) {
-    const info = await ffprobe(file, { path: ffprobeStatic.path });
-    return info.streams[0].duration;
-}
+const options = {
+    host: process.env.HOST ?? "localhost",
+    port: parseInt(process.env.PORT ?? "3000"), 
+};
 
 process.on('SIGINT', () => {
     save();
     process.exit();
 });
+
+import { parse, dirname, join } from "node:path";
+import { mkdir, rename, unlink } from "node:fs/promises";
+import { createWriteStream, createReadStream } from "node:fs";
+
+const MEDIA_PATH = process.env.MEDIA_PATH;
+const DUMP_PATH = join(MEDIA_PATH, "dump");
+
+mkdir(MEDIA_PATH).catch(() => {});
+mkdir(DUMP_PATH).catch(() => {});
+mkdir(dirname(process.env.DATA_PATH)).catch(() => {});
+
+import { LowSync } from "lowdb";
+import { JSONFileSync } from "lowdb/node";
+
+const db = new LowSync(new JSONFileSync(process.env.DATA_PATH));
+db.read();
+db.data ||= { entries: [] };
+db.write();
+
+const library = new Map(db.data.entries);
+
+function save() {
+    db.data.entries = Array.from(library);
+    db.write();
+}
+
+async function getMediaDurationInSeconds(file) {
+    const info = await ffprobe(file, { path: ffprobeStatic.path });
+    return info.streams[0].duration ?? 0;
+}
+
+import express from "express";
+import fileUpload from "express-fileupload";
+
+import ffprobe from "ffprobe";
+import ffprobeStatic from "ffprobe-static";
+// import youtubedl from "youtube-dl-exec";
+
+import joi from "joi";
+import glob from 'glob';
+import { nanoid } from 'nanoid';
 
 const app = express();
 app.use(fileUpload({
@@ -261,35 +266,34 @@ app.delete("/library/:media", requireAuth, async (request, response) => {
     save();
 });
 
+// app.post("/library-get-youtube", requireAuth, async (request, response) => {
+//     const youtubeId = request.body.youtubeId;
+//     const youtubeUrl = `http://www.youtube.com/watch?v=${youtubeId}`;
+//     const path = `${YOUTUBE_PATH}/${youtubeId}.mp4`;
 
-app.post("/library-get-youtube", requireAuth, async (request, response) => {
-    const youtubeId = request.body.youtubeId;
-    const youtubeUrl = `http://www.youtube.com/watch?v=${youtubeId}`;
-    const path = `${YOUTUBE_PATH}/${youtubeId}.mp4`;
+//     try {
+//         const { title } = await youtubedl(youtubeUrl, {
+//             format: "18",
+//             forceIpv4: true,
+//             dumpSingleJson: true,
+//         });
+//         await youtubedl(youtubeUrl, {
+//             format: "18",
+//             forceIpv4: true,
+//             o: path,
+//         }, { execPath: __dirname });
+//         const entry = await addFromLocalFile(path);
+//         entry.title = title;
+//         response.json(entry);
+//     } catch (error) {
+//         response.status(503).json("download failed");
 
-    try {
-        const { title } = await youtubedl(youtubeUrl, {
-            format: "18",
-            forceIpv4: true,
-            dumpSingleJson: true,
-        });
-        await youtubedl(youtubeUrl, {
-            format: "18",
-            forceIpv4: true,
-            o: path,
-        }, { execPath: __dirname });
-        const entry = await addFromLocalFile(path);
-        entry.title = title;
-        response.json(entry);
-    } catch (error) {
-        response.status(503).json("download failed");
-
-        statuses.set(youtubeId, "failed");
-        console.log("error", error);
-        console.log("DELETING", youtubeId, "FROM", path);
-        await unlink(path).catch(() => {});
-    }
-});
+//         statuses.set(youtubeId, "failed");
+//         console.log("error", error);
+//         console.log("DELETING", youtubeId, "FROM", path);
+//         await unlink(path).catch(() => {});
+//     }
+// });
 
 app.post("/library-get-tweet", requireAuth, async (request, response) => {
     const url = request.body.url;
@@ -307,6 +311,6 @@ app.post("/library-get-tweet", requireAuth, async (request, response) => {
     }
 });
 
-const listener = app.listen(process.env.PORT, process.env.HOST, () => {
-    console.log("zone library serving on http://localhost:" + listener.address().port);
+const listener = app.listen(options.port, options.host, () => {
+    console.log(`${process.title} serving on http://${listener.address().address}:${listener.address().port}`);
 });
