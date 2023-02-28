@@ -56,6 +56,7 @@ import joi from "joi";
 import glob from 'glob';
 import { nanoid } from 'nanoid';
 import srt2vtt from 'srt-to-vtt';
+import { Readable } from 'node:stream';
 
 const app = express();
 app.use(fileUpload({
