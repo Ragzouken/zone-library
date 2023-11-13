@@ -77,34 +77,6 @@ async function uploadSubtitle(auth, id, subtitles) {
     return fetch(url, init).then((response) => response.json());
 }
 
-async function downloadYoutube(auth, youtubeId) {
-    const url = new URL(`/library-get-youtube`, location.origin);
-    const body = new FormData();
-    body.set("youtubeId", youtubeId);
-    const init = {
-        method: "POST",
-        headers: { 
-            "Authorization": "Bearer " + auth,
-        },
-        body,
-    };
-    return fetch(url, init).then((response) => response.json());
-}
-
-async function downloadTweet(auth, tweetURL) {
-    const url = new URL(`/library-get-tweet`, location.origin);
-    const body = new FormData();
-    body.set("url", tweetURL);
-    const init = {
-        method: "POST",
-        headers: { 
-            "Authorization": "Bearer " + auth,
-        },
-        body,
-    };
-    return fetch(url, init).then((response) => response.json());
-}
-
 async function refresh() {
     const entries = await searchLibrary();
 
@@ -283,48 +255,48 @@ async function start() {
         }
     });
 
-    document.getElementById("youtube-form").addEventListener("submit", async (event) => {
-        event.preventDefault();
-        const form = event.currentTarget;
-        form.classList.add('busy');
-        try {
-            const formData = new FormData(form);
-            const url = formData.get("url");
-            form.reset();
-            const youtubeId = new URL(url).searchParams.get("v");
-            console.log(youtubeId);
+    // document.getElementById("youtube-form").addEventListener("submit", async (event) => {
+    //     event.preventDefault();
+    //     const form = event.currentTarget;
+    //     form.classList.add('busy');
+    //     try {
+    //         const formData = new FormData(form);
+    //         const url = formData.get("url");
+    //         form.reset();
+    //         const youtubeId = new URL(url).searchParams.get("v");
+    //         console.log(youtubeId);
 
-            const result = await downloadYoutube(auth, youtubeId);
-            const entries = await refresh();
+    //         const result = await downloadYoutube(auth, youtubeId);
+    //         const entries = await refresh();
 
-            if (result.mediaId) {
-                const selected = entries.find((entry) => entry.mediaId === result.mediaId);
-                select(selected);
-            }
-        } finally {
-            form.classList.remove('busy');
-        }
-    });
+    //         if (result.mediaId) {
+    //             const selected = entries.find((entry) => entry.mediaId === result.mediaId);
+    //             select(selected);
+    //         }
+    //     } finally {
+    //         form.classList.remove('busy');
+    //     }
+    // });
 
-    document.getElementById("tweet-form").addEventListener("submit", async (event) => {
-        event.preventDefault();
-        const form = event.currentTarget;
-        form.classList.add('busy');
-        try {
-            const formData = new FormData(form);
-            const url = formData.get("url");
-            form.reset();
-            const result = await downloadTweet(auth, url);
-            const entries = await refresh();
+    // document.getElementById("tweet-form").addEventListener("submit", async (event) => {
+    //     event.preventDefault();
+    //     const form = event.currentTarget;
+    //     form.classList.add('busy');
+    //     try {
+    //         const formData = new FormData(form);
+    //         const url = formData.get("url");
+    //         form.reset();
+    //         const result = await downloadTweet(auth, url);
+    //         const entries = await refresh();
 
-            if (result.mediaId) {
-                const selected = entries.find((entry) => entry.mediaId === result.mediaId);
-                select(selected);
-            }
-        } finally {
-            form.classList.remove('busy');
-        }
-    });
+    //         if (result.mediaId) {
+    //             const selected = entries.find((entry) => entry.mediaId === result.mediaId);
+    //             select(selected);
+    //         }
+    //     } finally {
+    //         form.classList.remove('busy');
+    //     }
+    // });
 
     const filterStyle = document.getElementById("library-filter-style");
     document.getElementById("library-filter-input").addEventListener("input", (event) => {

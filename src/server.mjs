@@ -50,7 +50,6 @@ import fileUpload from "express-fileupload";
 
 import ffprobe from "ffprobe";
 import ffprobeStatic from "ffprobe-static";
-// import youtubedl from "youtube-dl-exec";
 
 import joi from "joi";
 import glob from 'glob';
@@ -266,51 +265,6 @@ app.delete("/library/:media", requireAuth, async (request, response) => {
     await unlink(getLocalPath(request.libraryEntry));
     response.json(request.libraryEntry);
     save();
-});
-
-// app.post("/library-get-youtube", requireAuth, async (request, response) => {
-//     const youtubeId = request.body.youtubeId;
-//     const youtubeUrl = `http://www.youtube.com/watch?v=${youtubeId}`;
-//     const path = `${YOUTUBE_PATH}/${youtubeId}.mp4`;
-
-//     try {
-//         const { title } = await youtubedl(youtubeUrl, {
-//             format: "18",
-//             forceIpv4: true,
-//             dumpSingleJson: true,
-//         });
-//         await youtubedl(youtubeUrl, {
-//             format: "18",
-//             forceIpv4: true,
-//             o: path,
-//         }, { execPath: __dirname });
-//         const entry = await addFromLocalFile(path);
-//         entry.title = title;
-//         response.json(entry);
-//     } catch (error) {
-//         response.status(503).json("download failed");
-
-//         statuses.set(youtubeId, "failed");
-//         console.log("error", error);
-//         console.log("DELETING", youtubeId, "FROM", path);
-//         await unlink(path).catch(() => {});
-//     }
-// });
-
-app.post("/library-get-tweet", requireAuth, async (request, response) => {
-    const url = request.body.url;
-    const path = `${YOUTUBE_PATH}/${nanoid()}.mp4`;
-    console.log(path);
-
-    try {
-        await youtubedl(url, { o: path }, { execPath: __dirname });
-        const entry = await addFromLocalFile(path);
-        response.json(entry);
-    } catch (error) {
-        response.status(503).json("download failed");
-        console.log("error", error);
-        await unlink(path).catch(() => {});
-    }
 });
 
 const listener = app.listen(options.port, options.host, () => {
