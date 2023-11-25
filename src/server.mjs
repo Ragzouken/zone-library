@@ -208,7 +208,7 @@ app.post("/library", requireAuth, async (request, response) => {
     }
     
     library.set(mediaId, info);
-    response.json(info);
+    response.json(withSrc(info));
     save();
 });
 
@@ -231,7 +231,7 @@ app.put("/library/:media/subtitles", requireAuth, async (request, response) => {
     }
 
     request.libraryEntry.subtitle = filename;
-    response.json(request.libraryEntry);
+    response.json(withSrc(request.libraryEntry));
     save();
 });
 
@@ -255,7 +255,7 @@ app.patch("/library/:media", requireAuth, (request, response) => {
         actions.delTags.forEach((tag) => tags.delete(tag));
         request.libraryEntry.tags = Array.from(tags);
 
-        response.json(request.libraryEntry);
+        response.json(withSrc(request.libraryEntry));
         save();
     }
 });
